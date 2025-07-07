@@ -1,5 +1,4 @@
 import type { Dificultad } from './api';
-import { Usuario } from './usuario';
 
 // Tipos para sesiones de respuesta
 export interface SesionRespuesta {

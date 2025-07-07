@@ -2,10 +2,10 @@ import React, { createContext, useContext, type ReactNode } from 'react'
 import { useHistorial } from '../hooks/useHistorial'
 import type {
   PreguntaRespondida,
-  EstadisticasUsuario,
   Dificultad,
   TematicaEstadisticas,
 } from '../types/api'
+import type { EstadisticasUsuario } from '../types/estadisticas'
 
 interface HistorialContextType {
   // Estado principal

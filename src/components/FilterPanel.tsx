@@ -1,7 +1,7 @@
 import React from 'react'
 import { Filter, Search, X } from 'lucide-react'
 import { useHistorialContext } from '../contexts/HistorialContext'
-import type { DificultadValue } from '../types/api'
+import type { Dificultad } from '../types/api'
 
 interface FilterPanelProps {
   className?: string
@@ -27,7 +27,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ className = '' }) => {
 
   const handleDificultadChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value
-    setDificultad(value === '' ? undefined : (value as DificultadValue))
+    setDificultad(value === '' ? undefined : (value as Dificultad))
   }
 
   const handleTextoBusquedaChange = (

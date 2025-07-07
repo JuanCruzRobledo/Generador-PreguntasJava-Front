@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet } from 'react-router-dom'
 import Navigation from './Navigation'
 import LoadingSpinner from './ui/LoadingSpinner'
@@ -8,9 +8,16 @@ import { useHistorialContext } from '../contexts/HistorialContext'
 import { apiService } from '../services/apiService'
 
 export default function Layout() {
-  const { error: preguntaError, reiniciar: resetPregunta } = usePreguntaContext()
-  const { error: historialError, cargarPreguntas: loadHistorial, cargarTematicas: loadTematicas } = useHistorialContext()
-  const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking')
+  const { error: preguntaError, reiniciar: resetPregunta } =
+    usePreguntaContext()
+  const {
+    error: historialError,
+    cargarPreguntas: loadHistorial,
+    cargarTematicas: loadTematicas,
+  } = useHistorialContext()
+  const [backendStatus, setBackendStatus] = useState<
+    'checking' | 'online' | 'offline'
+  >('checking')
   const [error, setError] = useState<string | null>(null)
 
   // Verificar estado del backend al cargar la aplicación
