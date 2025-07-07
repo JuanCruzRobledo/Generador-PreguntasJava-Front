@@ -47,10 +47,10 @@ export const TematicasStats: React.FC = () => {
   const totalTematicas = tematicas.length
 
   // Si tienes navegación a preguntas por temática (esto es opcional, o podrías remover)
-  const cargarPreguntasPorTematica = (nombreTematica: string) => {
-    // Aquí podrías navegar a una ruta filtrada o hacer algo con esa temática
-    console.log(`Ver preguntas de temática: ${nombreTematica}`)
-  }
+  //const cargarPreguntasPorTematica = (nombreTematica: string) => {
+  // Aquí podrías navegar a una ruta filtrada o hacer algo con esa temática
+  //console.log(`Ver preguntas de temática: ${nombreTematica}`)
+  //}
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6">
