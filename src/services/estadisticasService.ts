@@ -9,7 +9,7 @@ import type { ApiResponse } from '../types/api';
 // Axios configurado para módulo estadísticas
 const estadisticasAPI = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1/estadisticas',
-  timeout: 10000,
+  timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 10000,
   headers: {
     'Content-Type': 'application/json',
   },

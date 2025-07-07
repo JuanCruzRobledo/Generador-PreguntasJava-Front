@@ -5,7 +5,7 @@ import type { Usuario } from '../types/usuario';
 // Axios instance
 const usuarioAPI = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/v1',
-  timeout: 10000,
+  timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 10000,
   headers: {
     'Content-Type': 'application/json',
   },
