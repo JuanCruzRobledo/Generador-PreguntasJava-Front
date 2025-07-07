@@ -1,1 +1,38 @@
-{\n  \"name\": \"generador-preguntas-java\",\n  \"version\": 2,\n  \"buildCommand\": \"npm run build\",\n  \"outputDirectory\": \"dist\",\n  \"devCommand\": \"npm run dev\",\n  \"installCommand\": \"npm install\",\n  \"framework\": \"vite\",\n  \"rewrites\": [\n    {\n      \"source\": \"/(.*)\",\n      \"destination\": \"/index.html\"\n    }\n  ],\n  \"headers\": [\n    {\n      \"source\": \"/api/(.*)\",\n      \"headers\": [\n        {\n          \"key\": \"Access-Control-Allow-Origin\",\n          \"value\": \"*\"\n        },\n        {\n          \"key\": \"Access-Control-Allow-Methods\",\n          \"value\": \"GET, POST, PUT, DELETE, OPTIONS\"\n        },\n        {\n          \"key\": \"Access-Control-Allow-Headers\",\n          \"value\": \"Content-Type, Authorization\"\n        }\n      ]\n    }\n  ],\n  \"env\": {\n    \"VITE_API_URL\": \"@vite_api_url\",\n    \"VITE_APP_NAME\": \"Generador de Preguntas Java\",\n    \"VITE_APP_VERSION\": \"1.0.0\"\n  }\n}
+{
+  "name": "generador-preguntas-java",
+  "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    }
+  ],
+  "env": {
+    "VITE_API_URL": "https://tudominio.com/api",
+    "VITE_APP_NAME": "Generador de Preguntas Java",
+    "VITE_APP_VERSION": "1.0.0"
+  }
+}
