@@ -79,10 +79,7 @@ export const useHistorial = () => {
   const cargarTematicas = useCallback(async () => {
     try {
       const tematicas = await apiService.obtenerTodasLasTematicas();
-      setState(prev => ({
-        ...prev,
-        tematicas,
-      }));
+      
       return tematicas;
     } catch (error) {
       console.error('Error al cargar temáticas:', error);

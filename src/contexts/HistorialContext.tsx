@@ -1,17 +1,17 @@
 import React, { createContext, useContext, type ReactNode } from 'react'
 import { useHistorial } from '../hooks/useHistorial'
 import type {
-  Dificultad,
   PreguntaRespondida,
-  TematicaConEstadisticas,
   EstadisticasUsuario,
+  Dificultad,
+  TematicaEstadisticas,
 } from '../types/api'
 
 interface HistorialContextType {
   // Estado principal
   preguntas: PreguntaRespondida[]
   todasLasPreguntas: PreguntaRespondida[]
-  tematicas: TematicaConEstadisticas[]
+  tematicas: TematicaEstadisticas[]
   filtroTematica: string | null
   isLoading: boolean
   error: string | null

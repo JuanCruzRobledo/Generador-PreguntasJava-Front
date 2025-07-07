@@ -1,9 +1,14 @@
 import { useState, useCallback } from 'react';
-import type {  
-  GenerarPreguntaRequest,
-  PreguntaState 
-} from '../types/api';
 import { apiService } from '../services/apiService';
+import type { GenerarPreguntaRequest, Pregunta, ValidacionResponse, ValidarRespuestaRequest } from '../types/api';
+
+interface PreguntaState {
+  pregunta: Pregunta | null;
+  respuestaSeleccionada: string | null;
+  resultado: ValidacionResponse | null;
+  isLoading: boolean;
+  error: string | null;
+}
 
 export const usePregunta = () => {
   const [state, setState] = useState<PreguntaState>({
@@ -26,7 +31,6 @@ export const usePregunta = () => {
         respuestaSeleccionada: null,
         resultado: null,
         isLoading: false,
-        error: null,
       }));
       return pregunta;
     } catch (error) {
@@ -50,37 +54,41 @@ export const usePregunta = () => {
   }, []);
 
   // Validar respuesta seleccionada
-  const validarRespuesta = useCallback(async () => {
-    if (!state.pregunta || !state.respuestaSeleccionada) {
-      throw new Error('No hay pregunta o respuesta seleccionada');
-    }
+  const validarRespuesta = useCallback(
+    async (preguntaId: number, opcionSeleccionada: string) => {
+      if (!preguntaId || !opcionSeleccionada) {
+        throw new Error('No hay pregunta o respuesta seleccionada');
+      }
 
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
+      setState(prev => ({ ...prev, isLoading: true, error: null }));
 
-    try {
-      const resultado = await apiService.validarRespuesta({
-        preguntaId: state.pregunta.id,
-        opcionSeleccionada: state.respuestaSeleccionada,
-      });
+      try {
+        const resultado = await apiService.validarRespuesta(
+          {
+            preguntaId, 
+            opcionSeleccionada
+          } as ValidarRespuestaRequest
+        );
 
-      setState(prev => ({
-        ...prev,
-        resultado,
-        isLoading: false,
-        error: null,
-      }));
+        setState(prev => ({
+          ...prev,
+          resultado,
+          isLoading: false,
+        }));
 
-      return resultado;
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error al validar respuesta';
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: errorMessage,
-      }));
-      throw error;
-    }
-  }, [state.pregunta, state.respuestaSeleccionada]);
+        return resultado;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Error al validar respuesta';
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: errorMessage,
+        }));
+        throw error;
+      }
+    },
+    []
+  );
 
   // Reiniciar estado
   const reiniciar = useCallback(() => {
@@ -98,12 +106,6 @@ export const usePregunta = () => {
     setState(prev => ({ ...prev, error: null }));
   }, []);
 
-  const responder = useCallback(async (respuesta: string) => {
-  seleccionarRespuesta(respuesta);
-  await validarRespuesta();
-}, [seleccionarRespuesta, validarRespuesta]);
-
-
   return {
     // Estado
     pregunta: state.pregunta,
@@ -115,8 +117,7 @@ export const usePregunta = () => {
     // Acciones
     generarPregunta,
     seleccionarRespuesta,
-    validarRespuesta,
-    responder, 
+    validarRespuesta, 
     reiniciar,
     limpiarError,
     

@@ -1,6 +1,7 @@
 import React, { type ReactNode } from 'react'
 import { PreguntaProvider } from './PreguntaContext'
 import { HistorialProvider } from './HistorialContext'
+import { UserProvider } from './UserContext'
 
 interface AppProviderProps {
   children: ReactNode
@@ -8,8 +9,10 @@ interface AppProviderProps {
 
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   return (
-    <PreguntaProvider>
-      <HistorialProvider>{children}</HistorialProvider>
-    </PreguntaProvider>
+    <UserProvider>
+      <PreguntaProvider>
+        <HistorialProvider>{children}</HistorialProvider>
+      </PreguntaProvider>
+    </UserProvider>
   )
 }

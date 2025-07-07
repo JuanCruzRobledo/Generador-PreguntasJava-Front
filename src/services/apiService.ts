@@ -83,15 +83,19 @@ const handleApiError = (error: any): never => {
 
 // Servicios de la API
 export const apiService = {
+  
   // Generar una nueva pregunta
   async generarPregunta(request: GenerarPreguntaRequest = {}): Promise<Pregunta> {
-    try {
-      const response = await api.post<ApiResponse<Pregunta>>('/preguntas/generar', request);
-      return handleApiResponse(response);
-    } catch (error) {
-      return handleApiError(error);
-    }
-  },
+  try {
+    const response = await api.post<ApiResponse<Pregunta>>('/preguntas/generar', request);
+    const preguntaBackend = handleApiResponse(response);
+
+    // Retornás la versión mapeada para el frontend
+    return preguntaBackend;
+  } catch (error) {
+    return handleApiError(error);
+  }
+},
 
   // Validar respuesta del usuario
   async validarRespuesta(request: ValidarRespuestaRequest): Promise<ValidacionResponse> {
@@ -143,7 +147,7 @@ export const apiService = {
       console.warn('Backend no disponible:', error);
       return false;
     }
-  }
+  },
 };
 
 export default apiService;

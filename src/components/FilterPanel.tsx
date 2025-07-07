@@ -1,38 +1,40 @@
-import React from 'react';
-import { Filter, Search, X } from 'lucide-react';
-import { useHistorialContext } from '../contexts/HistorialContext';
-import { Dificultad } from '../types/api';
+import React from 'react'
+import { Filter, Search, X } from 'lucide-react'
+import { useHistorialContext } from '../contexts/HistorialContext'
+import type { DificultadValue } from '../types/api'
 
 interface FilterPanelProps {
-  className?: string;
+  className?: string
 }
 
 const FilterPanel: React.FC<FilterPanelProps> = ({ className = '' }) => {
-  const { 
-    tematica, 
-    dificultad, 
-    textoBusqueda, 
+  const {
+    tematica,
+    dificultad,
+    textoBusqueda,
     filtroActivo,
-    setTematica, 
-    setDificultad, 
-    setTextoBusqueda, 
+    setTematica,
+    setDificultad,
+    setTextoBusqueda,
     limpiarFiltros,
-    tematicasDisponibles 
-  } = useHistorialContext();
+    tematicasDisponibles,
+  } = useHistorialContext()
 
   const handleTematicaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setTematica(value === '' ? undefined : value);
-  };
+    const value = e.target.value
+    setTematica(value === '' ? undefined : value)
+  }
 
   const handleDificultadChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setDificultad(value === '' ? undefined : value as Dificultad);
-  };
+    const value = e.target.value
+    setDificultad(value === '' ? undefined : (value as DificultadValue))
+  }
 
-  const handleTextoBusquedaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTextoBusqueda(e.target.value);
-  };
+  const handleTextoBusquedaChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setTextoBusqueda(e.target.value)
+  }
 
   return (
     <div className={`bg-white rounded-lg shadow-md p-6 ${className}`}>
@@ -81,7 +83,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ className = '' }) => {
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Todas las temáticas</option>
-            {tematicasDisponibles.map((tema) => (
+            {tematicasDisponibles.map(tema => (
               <option key={tema} value={tema}>
                 {tema}
               </option>
@@ -111,12 +113,14 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ className = '' }) => {
       {filtroActivo && (
         <div className="mt-4 p-3 bg-blue-50 rounded-lg">
           <p className="text-sm text-blue-700">
-            {filtroActivo === 1 ? '1 filtro activo' : `${filtroActivo} filtros activos`}
+            {filtroActivo === 1
+              ? '1 filtro activo'
+              : `${filtroActivo} filtros activos`}
           </p>
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default FilterPanel;
+export default FilterPanel

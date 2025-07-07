@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Play, RotateCcw } from 'lucide-react'
 import { usePreguntaContext } from '../contexts/PreguntaContext'
@@ -21,7 +21,14 @@ export const PreguntaGenerator: React.FC = () => {
     generarPregunta,
     reiniciar,
     limpiarError,
+    validarRespuesta,
+    respuestaSeleccionada,
+    seleccionarRespuesta,
+    resultado,
   } = usePreguntaContext()
+
+  const [mostrarRespuestaCorrecta, setMostrarRespuestaCorrecta] =
+    useState(false)
 
   const { register, handleSubmit, reset } = useForm<FormData>({
     defaultValues: {
@@ -34,15 +41,12 @@ export const PreguntaGenerator: React.FC = () => {
     try {
       const request: GenerarPreguntaRequest = {}
 
-      if (data.dificultad) {
-        request.dificultad = data.dificultad
-      }
-
-      if (data.tematicaDeseada.trim()) {
+      if (data.dificultad) request.dificultad = data.dificultad as Dificultad
+      if (data.tematicaDeseada.trim())
         request.tematicaDeseada = data.tematicaDeseada.trim()
-      }
 
       await generarPregunta(request)
+      setMostrarRespuestaCorrecta(false)
     } catch (error) {
       console.error('Error al generar pregunta:', error)
     }
@@ -51,6 +55,24 @@ export const PreguntaGenerator: React.FC = () => {
   const handleNuevaPregunta = () => {
     reiniciar()
     reset()
+    setMostrarRespuestaCorrecta(false)
+  }
+
+  const handleRespuestaSeleccionada = async (respuesta: string) => {
+    if (!pregunta?.id || respuestaSeleccionada) return
+
+    try {
+      // 1. Seleccionamos la respuesta (actualiza el estado)
+      seleccionarRespuesta(respuesta)
+
+      // 2. Validamos con el backend
+      await validarRespuesta(pregunta.id, respuesta)
+
+      // 3. Mostramos el resultado (el contexto ya actualizó resultado)
+      setMostrarRespuestaCorrecta(true)
+    } catch (error) {
+      console.error('Error al validar respuesta:', error)
+    }
   }
 
   return (
@@ -135,15 +157,15 @@ export const PreguntaGenerator: React.FC = () => {
       {/* Pregunta generada */}
       {pregunta && (
         <div className="space-y-6">
-          <PreguntaCard 
+          <PreguntaCard
             pregunta={pregunta}
-            respuestaSeleccionada={null}
-            onRespuestaSeleccionada={() => {}}
-            mostrarRespuestaCorrecta={false}
-            isDisabled={false}
+            respuestaSeleccionada={respuestaSeleccionada}
+            onRespuestaSeleccionada={handleRespuestaSeleccionada}
+            mostrarRespuestaCorrecta={mostrarRespuestaCorrecta}
+            isDisabled={!!respuestaSeleccionada}
+            resultado={resultado}
           />
 
-          {/* Botón de nueva pregunta */}
           <div className="text-center">
             <Button onClick={handleNuevaPregunta} variant="outline" size="lg">
               <RotateCcw className="w-5 h-5 mr-2" />

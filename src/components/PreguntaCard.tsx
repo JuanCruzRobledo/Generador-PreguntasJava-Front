@@ -1,5 +1,5 @@
-import React from 'react'
-import type { Pregunta, PreguntaRespondida } from '../types/api'
+import React, { useEffect, useMemo } from 'react'
+import type { Pregunta, PreguntaRespondida, Opcion, ValidacionResponse } from '../types/api'
 
 interface PreguntaCardProps {
   pregunta: Pregunta | PreguntaRespondida
@@ -7,6 +7,8 @@ interface PreguntaCardProps {
   onRespuestaSeleccionada?: (respuesta: string) => void
   mostrarRespuestaCorrecta?: boolean
   isDisabled?: boolean
+  resultado?: ValidacionResponse | null
+  className?: string
 }
 
 const PreguntaCard: React.FC<PreguntaCardProps> = ({
@@ -15,27 +17,32 @@ const PreguntaCard: React.FC<PreguntaCardProps> = ({
   onRespuestaSeleccionada,
   mostrarRespuestaCorrecta = false,
   isDisabled = false,
+  resultado = null,
+  className = '',
 }) => {
-  // Helper para obtener opciones dependiendo del tipo de pregunta
-  const getOpciones = (): string[] => {
-    if ('opciones' in pregunta && Array.isArray(pregunta.opciones)) {
-      // Es tipo PreguntaRespondida
-      if (typeof pregunta.opciones[0] === 'string') {
-        return pregunta.opciones as string[];
-      }
-      // Es tipo Pregunta con opciones como objetos
-      return (pregunta.opciones as any[]).map((o: any) => o.contenido);
+  // Helper para determinar si es PreguntaRespondida o Pregunta
+  const isPreguntaRespondida = (p: Pregunta | PreguntaRespondida): p is PreguntaRespondida => {
+    return 'respuestaUsuario' in p && 'esCorrecta' in p
+  }
+
+  // Usar useMemo para optimizar el cálculo de opciones
+  const opciones = useMemo((): string[] => {
+    if (!pregunta || !pregunta.opciones) {
+      console.warn('Pregunta sin opciones:', pregunta)
+      return []
     }
-    return [];
-  };
 
-  // Helper para obtener respuesta correcta
-  const getRespuestaCorrecta = (): string => {
-    return pregunta.respuestaCorrecta;
-  };
+    if (isPreguntaRespondida(pregunta)) {
+      // Es PreguntaRespondida - opciones son strings
+      return pregunta.opciones as string[]
+    } else {
+      // Es Pregunta - opciones son objetos Opcion
+      return (pregunta.opciones as Opcion[]).map((opcion: Opcion) => opcion.contenido)
+    }
+  }, [pregunta])
 
-  const opciones = getOpciones();
-  const respuestaCorrecta = getRespuestaCorrecta();
+  // Obtener respuesta correcta
+  const respuestaCorrecta = pregunta?.respuestaCorrecta || null
 
   const getOpcionClass = (opcion: string) => {
     let baseClass =
@@ -68,8 +75,37 @@ const PreguntaCard: React.FC<PreguntaCardProps> = ({
     return baseClass
   }
 
+  useEffect(() => {
+    // Solo hacer log cuando la pregunta cambia
+    if (pregunta) {
+      console.log('Pregunta cargada:', pregunta)
+      console.log('Opciones procesadas:', opciones)
+    }
+  }, [pregunta?.id, opciones.length]) // Solo ejecutar cuando cambia la pregunta
+
+  // Validar que la pregunta tenga al menos el mínimo necesario
+  if (!pregunta || !pregunta.enunciado) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+        <p className="text-red-800">Error: Pregunta inválida o sin enunciado</p>
+      </div>
+    )
+  }
+
+  // Validar que tenga opciones
+  if (opciones.length === 0) {
+    return (
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+        <h3 className="text-xl font-semibold mb-4 text-gray-800">
+          {pregunta.enunciado}
+        </h3>
+        <p className="text-yellow-800">Error: Esta pregunta no tiene opciones válidas</p>
+      </div>
+    )
+  }
+
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+    <div className={`bg-white rounded-lg shadow-md p-6 mb-6 ${className}`.trim()}>
       <h3 className="text-xl font-semibold mb-4 text-gray-800">
         {pregunta.enunciado}
       </h3>
@@ -98,7 +134,37 @@ const PreguntaCard: React.FC<PreguntaCardProps> = ({
         ))}
       </div>
 
-      {mostrarRespuestaCorrecta && (
+      {/* Resultado de la validación */}
+      {resultado && (
+        <div className={`mt-4 p-4 rounded-lg border ${
+          resultado.esCorrecta 
+            ? 'bg-green-50 border-green-200' 
+            : 'bg-red-50 border-red-200'
+        }`}>
+          <div className="flex items-center gap-2 mb-2">
+            <span className={`text-sm font-semibold ${
+              resultado.esCorrecta ? 'text-green-800' : 'text-red-800'
+            }`}>
+              {resultado.esCorrecta ? '✅ ¡Respuesta Correcta!' : '❌ Respuesta Incorrecta'}
+            </span>
+          </div>
+          
+          {!resultado.esCorrecta && (
+            <p className="text-sm text-red-700 mb-2">
+              <span className="font-medium">Respuesta correcta:</span> {resultado.respuestaCorrecta}
+            </p>
+          )}
+          
+          <p className={`text-sm ${
+            resultado.esCorrecta ? 'text-green-700' : 'text-red-700'
+          }`}>
+            <span className="font-medium">Explicación:</span> {resultado.explicacion}
+          </p>
+        </div>
+      )}
+      
+      {/* Fallback para mostrar explicación general si no hay resultado específico */}
+      {mostrarRespuestaCorrecta && !resultado && pregunta.explicacion && (
         <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-sm text-blue-800">
             <span className="font-semibold">Explicación:</span>{' '}

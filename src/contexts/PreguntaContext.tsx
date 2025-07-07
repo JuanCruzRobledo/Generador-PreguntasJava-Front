@@ -1,13 +1,27 @@
 import React, { createContext, useContext, type ReactNode } from 'react'
 import { usePregunta } from '../hooks/usePregunta'
-import type { GenerarPreguntaRequest, Pregunta } from '../types/api'
+import type {
+  GenerarPreguntaRequest,
+  Pregunta,
+  ValidacionResponse,
+} from '../types/api'
 
 interface PreguntaContextType {
   pregunta: Pregunta | null
   isLoading: boolean
   error: string | null
+  respuestaSeleccionada: string | null
+  resultado: {
+    respuestaCorrecta: string
+    explicacion: string
+    esCorrecta: boolean
+  } | null
   generarPregunta: (request?: GenerarPreguntaRequest) => Promise<Pregunta>
-  responder: (respuesta: string) => Promise<void>
+  seleccionarRespuesta: (respuesta: string) => void
+  validarRespuesta: (
+    preguntaId: number,
+    opcionSeleccionada: string
+  ) => Promise<ValidacionResponse>
   reiniciar: () => void
   limpiarError: () => void
 }
@@ -23,10 +37,23 @@ interface PreguntaProviderProps {
 export const PreguntaProvider: React.FC<PreguntaProviderProps> = ({
   children,
 }) => {
-  const preguntaState = usePregunta()
+  const state = usePregunta()
+
+  const contextValue: PreguntaContextType = {
+    pregunta: state.pregunta,
+    isLoading: state.isLoading,
+    error: state.error,
+    respuestaSeleccionada: state.respuestaSeleccionada,
+    resultado: state.resultado,
+    generarPregunta: state.generarPregunta,
+    seleccionarRespuesta: state.seleccionarRespuesta,
+    validarRespuesta: state.validarRespuesta,
+    reiniciar: state.reiniciar,
+    limpiarError: state.limpiarError,
+  }
 
   return (
-    <PreguntaContext.Provider value={preguntaState}>
+    <PreguntaContext.Provider value={contextValue}>
       {children}
     </PreguntaContext.Provider>
   )
@@ -36,7 +63,7 @@ export const usePreguntaContext = () => {
   const context = useContext(PreguntaContext)
   if (context === undefined) {
     throw new Error(
-      'usePreguntaContext debe ser usado dentro de un PreguntaProvider'
+      'usePreguntaContext debe usarse dentro de un PreguntaProvider'
     )
   }
   return context
