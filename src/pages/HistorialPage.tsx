@@ -1,20 +1,6 @@
-import React, { useEffect } from 'react'
 import Historial from '../components/Historial'
-import { useHistorialContext } from '../contexts/HistorialContext'
 
 export default function HistorialPage() {
-  const {
-    preguntas: historial,
-    tematicas,
-    isLoading: historialLoading,
-    cargarPreguntas: loadHistorial,
-    aplicarFiltroTematica: filterHistorial,
-  } = useHistorialContext()
-
-  useEffect(() => {
-    loadHistorial()
-  }, [loadHistorial])
-
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="mb-6">
@@ -26,12 +12,7 @@ export default function HistorialPage() {
         </p>
       </div>
 
-      <Historial
-        historial={historial}
-        tematicas={tematicas}
-        isLoading={historialLoading}
-        onFilter={filterHistorial}
-      />
+      <Historial />
     </div>
   )
 }

@@ -1,7 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
-import type { HistorialState, Dificultad, EstadisticasUsuario } from '../types/api';
+import type { HistorialState, Dificultad } from '../types/api';
 import { apiService } from '../services/apiService';
 import { mapPreguntaToRespondida } from '../utils/mapPreguntaToRespondida';
+import type { EstadisticasUsuario } from '../types/estadisticas';
 
 interface ExtendedHistorialState extends HistorialState {
   textoBusqueda: string;
@@ -239,13 +240,14 @@ const tematicasConEstadisticas = state.tematicas.map(t => {
   });
 
   const estadisticas: EstadisticasUsuario = {
-    totalPreguntas: preguntasRespondidas.length,
-    respuestasCorrectas,
-    porcentajeAciertos,
-    tiempoPromedio: 0, // Por ahora no tenemos tiempo de respuesta
-    porDificultad,
-    porTematica,
-  };
+  totalPreguntas: preguntasRespondidas.length,
+  respuestasCorrectas,
+  porcentajeAciertos,
+  tiempoPromedio: 0, 
+  porDificultad,
+  porTematica,
+  ultimaActualizacion: new Date().toISOString(), 
+};
 
   return {
     // Estado

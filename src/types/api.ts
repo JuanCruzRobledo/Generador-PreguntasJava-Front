@@ -73,11 +73,11 @@ export interface PreguntaRespondida {
   enunciado: string;
   codigoJava?: string;
   respuestaCorrecta: string;
-  respuestaUsuario: string;
-  fechaRespuesta: string;
+  respuestaUsuario?: string;   
+  fechaRespuesta?: string;      
   tematica: string;
   dificultad: Dificultad;
-  esCorrecta: boolean;
+  esCorrecta?: boolean;         
   opciones: string[];
   explicacion: string;
 }
