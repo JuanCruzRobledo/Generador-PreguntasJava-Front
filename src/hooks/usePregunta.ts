@@ -7,6 +7,8 @@ interface PreguntaState {
   respuestaSeleccionada: string | null;
   resultado: ValidacionResponse | null;
   isLoading: boolean;
+  isGenerandoPregunta: boolean,
+  isValidandoRespuesta: boolean,
   error: string | null;
 }
 
@@ -16,6 +18,8 @@ export const usePregunta = () => {
     respuestaSeleccionada: null,
     resultado: null,
     isLoading: false,
+    isGenerandoPregunta: false,
+    isValidandoRespuesta: false,
     error: null,
   });
 
@@ -41,7 +45,7 @@ export const usePregunta = () => {
 
   // Generar nueva pregunta
   const generarPregunta = useCallback(async (request: GenerarPreguntaRequest = {}) => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
+    setState(prev => ({ ...prev,isGenerandoPregunta: true, isLoading: true, error: null }));
     
     try {
       const pregunta = await apiService.generarPregunta(request);
@@ -50,6 +54,7 @@ export const usePregunta = () => {
         pregunta,
         respuestaSeleccionada: null,
         resultado: null,
+        isGenerandoPregunta: false,
         isLoading: false,
       }));
       return pregunta;
@@ -58,6 +63,7 @@ export const usePregunta = () => {
       setState(prev => ({
         ...prev,
         isLoading: false,
+        isGenerandoPregunta: false,
         error: errorMessage,
       }));
       throw error;
@@ -77,22 +83,19 @@ export const usePregunta = () => {
   const validarRespuesta = useCallback(
     async (preguntaId: number, opcionSeleccionada: string) => {
       if (!preguntaId || !opcionSeleccionada) {
+        setState(prev => ({ ...prev, isValidandoRespuesta: false, isLoading: false }));
         throw new Error('No hay pregunta o respuesta seleccionada');
       }
 
-      setState(prev => ({ ...prev, isLoading: true, error: null }));
+      setState(prev => ({ ...prev, isValidandoRespuesta: true, isLoading: true, error: null }));
 
       try {
-        const resultado = await apiService.validarRespuesta(
-          {
-            preguntaId, 
-            opcionSeleccionada
-          } as ValidarRespuestaRequest
-        );
+        const resultado = await apiService.validarRespuesta({ preguntaId, opcionSeleccionada });
 
         setState(prev => ({
           ...prev,
           resultado,
+          isValidandoRespuesta: false,
           isLoading: false,
         }));
 
@@ -101,6 +104,7 @@ export const usePregunta = () => {
         const errorMessage = error instanceof Error ? error.message : 'Error al validar respuesta';
         setState(prev => ({
           ...prev,
+          isValidandoRespuesta: false,
           isLoading: false,
           error: errorMessage,
         }));
@@ -108,7 +112,7 @@ export const usePregunta = () => {
       }
     },
     []
-  );
+);
 
   // Reiniciar estado
   const reiniciar = useCallback(() => {
@@ -117,6 +121,8 @@ export const usePregunta = () => {
       respuestaSeleccionada: null,
       resultado: null,
       isLoading: false,
+      isGenerandoPregunta: false,
+      isValidandoRespuesta: false,
       error: null,
     });
   }, []);
@@ -132,6 +138,8 @@ export const usePregunta = () => {
     respuestaSeleccionada: state.respuestaSeleccionada,
     resultado: state.resultado,
     isLoading: state.isLoading,
+    isGenerandoPregunta: state.isGenerandoPregunta,
+    isValidandoRespuesta: state.isValidandoRespuesta,
     error: state.error,
     
     // Acciones

@@ -9,6 +9,8 @@ import type {
 interface PreguntaContextType {
   pregunta: Pregunta | null
   isLoading: boolean
+  isGenerandoPregunta: boolean
+  isValidandoRespuesta: boolean
   error: string | null
   respuestaSeleccionada: string | null
   resultado: {
@@ -43,6 +45,8 @@ export const PreguntaProvider: React.FC<PreguntaProviderProps> = ({
   const contextValue: PreguntaContextType = {
     pregunta: state.pregunta,
     isLoading: state.isLoading,
+    isGenerandoPregunta: state.isGenerandoPregunta,
+    isValidandoRespuesta: state.isValidandoRespuesta,
     error: state.error,
     respuestaSeleccionada: state.respuestaSeleccionada,
     resultado: state.resultado,

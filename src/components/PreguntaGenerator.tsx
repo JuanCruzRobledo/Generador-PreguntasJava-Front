@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { ArrowRight, Play, RotateCcw, X } from 'lucide-react'
 import { usePreguntaContext } from '../contexts/PreguntaContext'
@@ -6,7 +6,12 @@ import Button from './ui/Button'
 import LoadingSpinner from './ui/LoadingSpinner'
 import ErrorAlert from './ui/ErrorAlert'
 import PreguntaCard from './PreguntaCard'
-import { Dificultad, type GenerarPreguntaRequest } from '../types/api'
+import {
+  Dificultad,
+  type GenerarPreguntaRequest,
+  type Pregunta,
+  type PreguntaRespondida,
+} from '../types/api'
 
 interface FormData {
   dificultad: string
@@ -15,7 +20,8 @@ interface FormData {
 export const PreguntaGenerator: React.FC = () => {
   const {
     pregunta,
-    isLoading,
+    isGenerandoPregunta,
+    isValidandoRespuesta,
     error,
     generarPregunta,
     reiniciar,
@@ -27,20 +33,28 @@ export const PreguntaGenerator: React.FC = () => {
     tematicasDisponibles,
   } = usePreguntaContext()
 
+  const [preguntaLocal, setPreguntaLocal] = useState<
+    Pregunta | PreguntaRespondida | null
+  >(pregunta)
   const [tematicasDeseadas, setTematicasDeseadas] = useState<string[]>([])
   const [tematicasYaUtilizadas, setTematicasYaUtilizadas] = useState<string[]>(
     []
   )
   const [inputTematica, setInputTematica] = useState<string>('')
+  const [mostrarFormulario, setMostrarFormulario] = useState(true)
+  const [mostrarRespuestaCorrecta, setMostrarRespuestaCorrecta] =
+    useState(false)
 
   const { register, handleSubmit, reset, watch } = useForm<FormData>({
-    defaultValues: {
-      dificultad: '',
-    },
+    defaultValues: { dificultad: '' },
   })
 
-  // Filtra las temáticas disponibles para mostrar como sugerencias,
-  // excluyendo las que ya están seleccionadas y filtrando por input
+  // Actualiza la pregunta local cuando cambia la global
+  useEffect(() => {
+    setPreguntaLocal(pregunta)
+  }, [pregunta])
+
+  // Filtra sugerencias de temáticas en base al input y las ya seleccionadas
   const sugerenciasFiltradas = useMemo(() => {
     if (!inputTematica.trim()) return []
     const filtro = inputTematica.trim().toLowerCase()
@@ -49,7 +63,7 @@ export const PreguntaGenerator: React.FC = () => {
       .filter(t => t.toLowerCase().includes(filtro))
   }, [inputTematica, tematicasDisponibles, tematicasDeseadas])
 
-  // Agrega temática al presionar espacio o al seleccionar sugerencia
+  // Agrega una temática
   const agregarTematica = (tematica: string) => {
     const t = tematica.toLowerCase()
     if (!tematicasDeseadas.includes(t)) {
@@ -58,6 +72,7 @@ export const PreguntaGenerator: React.FC = () => {
     setInputTematica('')
   }
 
+  // Permite agregar con espacio
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === ' ' && inputTematica.trim()) {
       e.preventDefault()
@@ -69,8 +84,11 @@ export const PreguntaGenerator: React.FC = () => {
     setTematicasDeseadas(prev => prev.filter(t => t !== tematica))
   }
 
+  // Envía formulario para generar pregunta
   const onSubmit = async (data: FormData) => {
     try {
+      setMostrarFormulario(false)
+
       if (tematicasDeseadas.length === 0 && tematicasYaUtilizadas.length > 0) {
         setTematicasDeseadas(tematicasYaUtilizadas)
         setTematicasYaUtilizadas([])
@@ -85,20 +103,25 @@ export const PreguntaGenerator: React.FC = () => {
 
       await generarPregunta(request)
       setMostrarRespuestaCorrecta(false)
+      setMostrarFormulario(false)
     } catch (error) {
       console.error('Error al generar pregunta:', error)
+      setMostrarFormulario(true)
     }
   }
 
-  const [mostrarRespuestaCorrecta, setMostrarRespuestaCorrecta] =
-    useState(false)
-
+  // Reinicia la vista a estado inicial
   const handleNuevaPregunta = () => {
     reiniciar()
     reset()
+    setTematicasDeseadas([])
+    setTematicasYaUtilizadas([])
     setMostrarRespuestaCorrecta(false)
+    setMostrarFormulario(true)
+    setPreguntaLocal(null)
   }
 
+  // Lógica al seleccionar respuesta
   const handleRespuestaSeleccionada = async (respuesta: string) => {
     if (!pregunta?.id || respuestaSeleccionada) return
 
@@ -123,6 +146,7 @@ export const PreguntaGenerator: React.FC = () => {
     }
   }
 
+  // Genera la siguiente pregunta
   const handleSiguientePregunta = async () => {
     if (tematicasDeseadas.length === 0 && tematicasYaUtilizadas.length > 0) {
       setTematicasDeseadas(tematicasYaUtilizadas)
@@ -130,6 +154,8 @@ export const PreguntaGenerator: React.FC = () => {
       return
     }
 
+    setMostrarFormulario(false)
+    setPreguntaLocal(null)
     reiniciar()
     setMostrarRespuestaCorrecta(false)
 
@@ -162,7 +188,8 @@ export const PreguntaGenerator: React.FC = () => {
 
       {error && <ErrorAlert error={error} onClose={limpiarError} />}
 
-      {!pregunta && (
+      {/* Formulario visible si no se está generando una pregunta */}
+      {mostrarFormulario && !isGenerandoPregunta && (
         <div className="bg-white rounded-lg shadow-md p-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -185,7 +212,7 @@ export const PreguntaGenerator: React.FC = () => {
                 </select>
               </div>
 
-              {/* Input de temática con espacio para tags y sugerencias */}
+              {/* Input de temáticas + sugerencias */}
               <div className="relative">
                 <label
                   htmlFor="tematicas"
@@ -203,7 +230,6 @@ export const PreguntaGenerator: React.FC = () => {
                   autoComplete="off"
                 />
 
-                {/* Lista de sugerencias */}
                 {sugerenciasFiltradas.length > 0 && (
                   <ul className="absolute z-10 max-h-48 w-full overflow-auto rounded border bg-white shadow-md mt-1">
                     {sugerenciasFiltradas.map((sugerencia, i) => (
@@ -218,7 +244,7 @@ export const PreguntaGenerator: React.FC = () => {
                   </ul>
                 )}
 
-                {/* Lista de etiquetas */}
+                {/* Etiquetas de temáticas */}
                 <div className="flex flex-wrap gap-2 mt-2">
                   {tematicasDeseadas.map((tematica, index) => (
                     <span
@@ -244,7 +270,7 @@ export const PreguntaGenerator: React.FC = () => {
                 type="submit"
                 variant="primary"
                 size="lg"
-                isLoading={isLoading}
+                isLoading={isGenerandoPregunta}
                 className="min-w-48"
               >
                 <Play className="w-5 h-5 mr-2" />
@@ -255,18 +281,20 @@ export const PreguntaGenerator: React.FC = () => {
         </div>
       )}
 
-      {isLoading && !pregunta && (
+      {/* Spinner solo si se está generando pregunta */}
+      {isGenerandoPregunta && !mostrarFormulario && (
         <LoadingSpinner size="lg" text="Generando pregunta..." />
       )}
 
-      {pregunta && (
+      {/* Muestra la pregunta generada */}
+      {!mostrarFormulario && preguntaLocal && (
         <div className="space-y-6">
           <PreguntaCard
-            pregunta={pregunta}
+            pregunta={preguntaLocal}
             respuestaSeleccionada={respuestaSeleccionada}
             onRespuestaSeleccionada={handleRespuestaSeleccionada}
             mostrarRespuestaCorrecta={mostrarRespuestaCorrecta}
-            isDisabled={!!respuestaSeleccionada}
+            isDisabled={!!respuestaSeleccionada || isValidandoRespuesta}
             resultado={resultado}
           />
 

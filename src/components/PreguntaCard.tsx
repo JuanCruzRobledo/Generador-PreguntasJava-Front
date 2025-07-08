@@ -1,5 +1,10 @@
 import React, { useEffect, useMemo } from 'react'
-import type { Pregunta, PreguntaRespondida, Opcion, ValidacionResponse } from '../types/api'
+import type {
+  Pregunta,
+  PreguntaRespondida,
+  Opcion,
+  ValidacionResponse,
+} from '../types/api'
 
 interface PreguntaCardProps {
   pregunta: Pregunta | PreguntaRespondida
@@ -21,7 +26,9 @@ const PreguntaCard: React.FC<PreguntaCardProps> = ({
   className = '',
 }) => {
   // Helper para determinar si es PreguntaRespondida o Pregunta
-  const isPreguntaRespondida = (p: Pregunta | PreguntaRespondida): p is PreguntaRespondida => {
+  const isPreguntaRespondida = (
+    p: Pregunta | PreguntaRespondida
+  ): p is PreguntaRespondida => {
     return 'respuestaUsuario' in p && 'esCorrecta' in p
   }
 
@@ -37,7 +44,9 @@ const PreguntaCard: React.FC<PreguntaCardProps> = ({
       return pregunta.opciones as string[]
     } else {
       // Es Pregunta - opciones son objetos Opcion
-      return (pregunta.opciones as Opcion[]).map((opcion: Opcion) => opcion.contenido)
+      return (pregunta.opciones as Opcion[]).map(
+        (opcion: Opcion) => opcion.contenido
+      )
     }
   }, [pregunta])
 
@@ -53,15 +62,24 @@ const PreguntaCard: React.FC<PreguntaCardProps> = ({
     }
 
     if (mostrarRespuestaCorrecta) {
-      if (opcion === respuestaCorrecta) {
-        baseClass += 'border-green-500 bg-green-50 text-green-800 '
-      } else if (
-        opcion === respuestaSeleccionada &&
-        opcion !== respuestaCorrecta
-      ) {
-        baseClass += 'border-red-500 bg-red-50 text-red-800 '
+      if (resultado?.esCorrecta) {
+        // La respuesta fue correcta: pintar la opción seleccionada y la correcta en verde
+        if (opcion === respuestaSeleccionada) {
+          baseClass += 'border-green-500 bg-green-50 text-green-800 '
+        } else if (opcion === respuestaCorrecta) {
+          baseClass += 'border-green-500 bg-green-50 text-green-800 '
+        } else {
+          baseClass += 'border-gray-300 bg-gray-50 text-gray-600 '
+        }
       } else {
-        baseClass += 'border-gray-300 bg-gray-50 text-gray-600 '
+        // La respuesta fue incorrecta: la correcta verde y la seleccionada incorrecta roja
+        if (opcion === respuestaCorrecta) {
+          baseClass += 'border-green-500 bg-green-50 text-green-800 '
+        } else if (opcion === respuestaSeleccionada) {
+          baseClass += 'border-red-500 bg-red-50 text-red-800 '
+        } else {
+          baseClass += 'border-gray-300 bg-gray-50 text-gray-600 '
+        }
       }
     } else {
       if (opcion === respuestaSeleccionada) {
@@ -99,13 +117,17 @@ const PreguntaCard: React.FC<PreguntaCardProps> = ({
         <h3 className="text-xl font-semibold mb-4 text-gray-800">
           {pregunta.enunciado}
         </h3>
-        <p className="text-yellow-800">Error: Esta pregunta no tiene opciones válidas</p>
+        <p className="text-yellow-800">
+          Error: Esta pregunta no tiene opciones válidas
+        </p>
       </div>
     )
   }
 
   return (
-    <div className={`bg-white rounded-lg shadow-md p-6 mb-6 ${className}`.trim()}>
+    <div
+      className={`bg-white rounded-lg shadow-md p-6 mb-6 ${className}`.trim()}
+    >
       <h3 className="text-xl font-semibold mb-4 text-gray-800">
         {pregunta.enunciado}
       </h3>
@@ -136,33 +158,43 @@ const PreguntaCard: React.FC<PreguntaCardProps> = ({
 
       {/* Resultado de la validación */}
       {resultado && (
-        <div className={`mt-4 p-4 rounded-lg border ${
-          resultado.esCorrecta 
-            ? 'bg-green-50 border-green-200' 
-            : 'bg-red-50 border-red-200'
-        }`}>
+        <div
+          className={`mt-4 p-4 rounded-lg border ${
+            resultado.esCorrecta
+              ? 'bg-green-50 border-green-200'
+              : 'bg-red-50 border-red-200'
+          }`}
+        >
           <div className="flex items-center gap-2 mb-2">
-            <span className={`text-sm font-semibold ${
-              resultado.esCorrecta ? 'text-green-800' : 'text-red-800'
-            }`}>
-              {resultado.esCorrecta ? '✅ ¡Respuesta Correcta!' : '❌ Respuesta Incorrecta'}
+            <span
+              className={`text-sm font-semibold ${
+                resultado.esCorrecta ? 'text-green-800' : 'text-red-800'
+              }`}
+            >
+              {resultado.esCorrecta
+                ? '✅ ¡Respuesta Correcta!'
+                : '❌ Respuesta Incorrecta'}
             </span>
           </div>
-          
+
           {!resultado.esCorrecta && (
             <p className="text-sm text-red-700 mb-2">
-              <span className="font-medium">Respuesta correcta:</span> {resultado.respuestaCorrecta}
+              <span className="font-medium">Respuesta correcta:</span>{' '}
+              {resultado.respuestaCorrecta}
             </p>
           )}
-          
-          <p className={`text-sm ${
-            resultado.esCorrecta ? 'text-green-700' : 'text-red-700'
-          }`}>
-            <span className="font-medium">Explicación:</span> {resultado.explicacion}
+
+          <p
+            className={`text-sm ${
+              resultado.esCorrecta ? 'text-green-700' : 'text-red-700'
+            }`}
+          >
+            <span className="font-medium">Explicación:</span>{' '}
+            {resultado.explicacion}
           </p>
         </div>
       )}
-      
+
       {/* Fallback para mostrar explicación general si no hay resultado específico */}
       {mostrarRespuestaCorrecta && !resultado && pregunta.explicacion && (
         <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
