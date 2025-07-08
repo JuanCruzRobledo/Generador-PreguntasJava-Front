@@ -12,7 +12,6 @@ interface ExtendedHistorialState extends HistorialState {
 export const useHistorial = () => {
   const [state, setState] = useState<ExtendedHistorialState>({
     preguntas: [],
-    tematicas: [],
     filtroTematica: null,
     isLoading: false,
     error: null,
@@ -135,11 +134,10 @@ export const useHistorial = () => {
   const preguntasFiltradas = state.preguntas.filter(pregunta => {
   // Filtro por temática (ahora es string, no array)
   if (state.filtroTematica) {
-    if (!pregunta.tematica.toLowerCase().includes(state.filtroTematica.toLowerCase())) {
+    if (pregunta.tematica.toLowerCase() !== state.filtroTematica.toLowerCase()) {
       return false;
     }
   }
-
   // Filtro por dificultad
   if (state.filtroDificultad) {
   if (pregunta.dificultad.toLowerCase() !== state.filtroDificultad.toLowerCase()) return false;
@@ -164,6 +162,7 @@ export const useHistorial = () => {
   )
 ).sort();
 
+/*
 const tematicasConEstadisticas = state.tematicas.map(t => {
   const total = state.preguntas.filter(p => p.tematica === t.nombre).length;
   const correctas = state.preguntas.filter(p => p.tematica === t.nombre && p.esCorrecta).length;
@@ -177,7 +176,7 @@ const tematicasConEstadisticas = state.tematicas.map(t => {
     incorrectas,
     porcentajeAcierto,
   };
-});
+});*/
 
   // Calcular estadísticas del usuario
   const preguntasRespondidas = state.preguntas.filter(p => p.esCorrecta !== undefined);
@@ -222,7 +221,7 @@ const tematicasConEstadisticas = state.tematicas.map(t => {
     // Estado
     preguntas: preguntasFiltradas,
     todasLasPreguntas: state.preguntas,
-    tematicas: tematicasConEstadisticas,
+    //tematicas: tematicasConEstadisticas,
     filtroTematica: state.filtroTematica,
     isLoading: state.isLoading,
     error: state.error,
@@ -246,7 +245,7 @@ const tematicasConEstadisticas = state.tematicas.map(t => {
     
     // Estados computados
     totalPreguntas: state.preguntas.length,
-    totalTematicas: state.tematicas.length,
+    //totalTematicas: state.tematicas.length,
     hayFiltroActivo: state.filtroTematica !== null || state.filtroDificultad !== null || state.textoBusqueda.trim() !== '',
     filtroActivo: [
       state.filtroTematica,

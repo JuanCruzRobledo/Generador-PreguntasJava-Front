@@ -94,7 +94,7 @@ export interface TematicaEstadisticas {
 // Estado del historial
 export interface HistorialState {
   preguntas: PreguntaRespondida[];
-  tematicas: TematicaEstadisticas[];
+  //tematicas: TematicaEstadisticas[];
   filtroTematica: string | null;
   isLoading: boolean;
   error: string | null;

@@ -2,6 +2,7 @@ import React from 'react'
 import { Filter, Search, X } from 'lucide-react'
 import { useHistorialContext } from '../contexts/HistorialContext'
 import { Dificultad } from '../types/api'
+import { usePreguntaContext } from '../contexts/PreguntaContext'
 
 interface FilterPanelProps {
   className?: string
@@ -17,8 +18,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({ className = '' }) => {
     setDificultad,
     setTextoBusqueda,
     limpiarFiltros,
-    tematicasDisponibles,
   } = useHistorialContext()
+
+  const { tematicasDisponibles } = usePreguntaContext()
 
   const handleTematicaChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value

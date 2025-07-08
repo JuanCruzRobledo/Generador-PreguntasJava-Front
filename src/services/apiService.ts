@@ -141,13 +141,26 @@ export const apiService = {
   // Verificar salud del backend
   async verificarSaludBackend(): Promise<boolean> {
     try {
-      await api.get('/tematicas');
-      return true;
-    } catch (error) {
-      console.warn('Backend no disponible:', error);
+      const response = await api.get('/health'); // usa el timeout global de 10s
+      if (response.status === 200) {
+        return true;
+      } else {
+        console.warn('Backend respondió con estado no OK:', response.status);
+        return false;
+      }
+    } catch (error: any) {
+      if (error.code === 'ECONNABORTED') {
+        console.warn('Timeout al conectar con backend');
+      } else if (error.response) {
+        // El servidor respondió con error (4xx, 5xx)
+        console.warn('Error en respuesta del backend:', error.response.status);
+      } else {
+        // Otro tipo de error (red, CORS, etc)
+        console.warn('Error al conectar con backend:', error.message || error);
+      }
       return false;
     }
-  },
+  }
 };
 
 export default apiService;

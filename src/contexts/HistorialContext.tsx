@@ -1,17 +1,12 @@
 import React, { createContext, useContext, type ReactNode } from 'react'
 import { useHistorial } from '../hooks/useHistorial'
-import type {
-  PreguntaRespondida,
-  Dificultad,
-  TematicaEstadisticas,
-} from '../types/api'
+import type { PreguntaRespondida, Dificultad } from '../types/api'
 import type { EstadisticasUsuario } from '../types/estadisticas'
 
 interface HistorialContextType {
   // Estado principal
   preguntas: PreguntaRespondida[]
   todasLasPreguntas: PreguntaRespondida[]
-  tematicas: TematicaEstadisticas[]
   filtroTematica: string | null
   isLoading: boolean
   error: string | null
@@ -37,7 +32,7 @@ interface HistorialContextType {
 
   // Estados computados
   totalPreguntas: number
-  totalTematicas: number
+  //totalTematicas: number
   hayFiltroActivo: boolean
   filtroActivo: number
   estaVacio: boolean

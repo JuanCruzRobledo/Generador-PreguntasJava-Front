@@ -24,9 +24,16 @@ export default function Layout() {
   useEffect(() => {
     const checkBackendHealth = async () => {
       try {
-        await apiService.verificarSaludBackend()
-        setBackendStatus('online')
-        setError(null)
+        const isOnline = await apiService.verificarSaludBackend()
+        if (isOnline) {
+          setBackendStatus('online')
+          setError(null)
+        } else {
+          setBackendStatus('offline')
+          setError(
+            'No se puede conectar con el servidor backend. Verifica que esté ejecutándose.'
+          )
+        }
       } catch (err) {
         setBackendStatus('offline')
         setError(
