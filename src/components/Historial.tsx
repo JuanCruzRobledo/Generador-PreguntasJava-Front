@@ -6,7 +6,7 @@ import ErrorAlert from './ui/ErrorAlert'
 import PreguntaCard from './PreguntaCard'
 import FilterPanel from './FilterPanel'
 import StatsPanel from './StatsPanel'
-import { useHistorial } from '../hooks/useHistorial'
+import { useHistorialContext } from '../contexts/HistorialContext'
 
 export const Historial: React.FC = () => {
   const {
@@ -18,7 +18,7 @@ export const Historial: React.FC = () => {
     totalPreguntas,
     totalTematicas,
     estaVacio,
-  } = useHistorial()
+  } = useHistorialContext()
 
   // Estado para manejar las respuestas seleccionadas en el historial
   const [respuestasSeleccionadas, setRespuestasSeleccionadas] = useState<

@@ -30,7 +30,6 @@ interface HistorialContextType {
 
   // Funciones principales
   cargarPreguntas: () => Promise<any>
-  cargarPreguntasPorTematica: (nombreTematica: string) => Promise<any>
   cargarTematicas: () => Promise<any>
   aplicarFiltroTematica: (tematica: string | null) => void
   refrescar: () => Promise<void>

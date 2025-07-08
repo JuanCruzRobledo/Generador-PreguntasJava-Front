@@ -48,34 +48,6 @@ export const useHistorial = () => {
   }
 }, []);
 
-  // Cargar preguntas por temática
-  const cargarPreguntasPorTematica = useCallback(async (nombreTematica: string) => {
-  setState(prev => ({ ...prev, isLoading: true, error: null, filtroTematica: nombreTematica }));
-
-  try {
-    const preguntasAPI = await apiService.obtenerPreguntasPorTematica(nombreTematica);
-
-    const preguntasTransformadas = preguntasAPI.map(mapPreguntaToRespondida);
-
-    setState(prev => ({
-      ...prev,
-      preguntas: preguntasTransformadas,
-      isLoading: false,
-      error: null,
-    }));
-
-    return preguntasTransformadas;
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Error al cargar preguntas por temática';
-    setState(prev => ({
-      ...prev,
-      isLoading: false,
-      error: errorMessage,
-    }));
-    throw error;
-  }
-}, []);
-
   // Cargar todas las temáticas
   const cargarTematicas = useCallback(async () => {
     try {
@@ -133,13 +105,10 @@ export const useHistorial = () => {
 
   // Refrescar datos
   const refrescar = useCallback(async () => {
-    if (state.filtroTematica) {
-      await cargarPreguntasPorTematica(state.filtroTematica);
-    } else {
-      await cargarPreguntas();
-    }
-    await cargarTematicas();
-  }, [state.filtroTematica, cargarPreguntas, cargarPreguntasPorTematica, cargarTematicas]);
+  await cargarPreguntas(); 
+  await cargarTematicas();
+  limpiarFiltros();
+}, [cargarPreguntas, cargarTematicas]);
 
   // Limpiar error
   const limpiarError = useCallback(() => {
@@ -266,7 +235,6 @@ const tematicasConEstadisticas = state.tematicas.map(t => {
     
     // Acciones
     cargarPreguntas,
-    cargarPreguntasPorTematica,
     cargarTematicas,
     aplicarFiltroTematica,
     setTematica,
