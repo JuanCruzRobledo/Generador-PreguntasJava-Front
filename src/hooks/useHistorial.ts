@@ -142,8 +142,8 @@ export const useHistorial = () => {
 
   // Filtro por dificultad
   if (state.filtroDificultad) {
-    if (pregunta.dificultad !== state.filtroDificultad) return false;
-  }
+  if (pregunta.dificultad.toLowerCase() !== state.filtroDificultad.toLowerCase()) return false;
+}
 
   // Filtro por texto de búsqueda
   if (state.textoBusqueda.trim()) {
