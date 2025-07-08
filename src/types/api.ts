@@ -43,7 +43,8 @@ export interface Pregunta {
 // Tipos para las requests
 export interface GenerarPreguntaRequest {
   dificultad?: Dificultad;
-  tematicaDeseada?: string;
+  tematicasDeseadas?: string[];
+  tematicasYaUtilizadas?: string[];
 }
 
 export interface ValidarRespuestaRequest {

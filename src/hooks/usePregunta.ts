@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { apiService } from '../services/apiService';
 import type { GenerarPreguntaRequest, Pregunta, ValidacionResponse, ValidarRespuestaRequest } from '../types/api';
 
@@ -18,6 +18,26 @@ export const usePregunta = () => {
     isLoading: false,
     error: null,
   });
+
+  // NUEVO: Estado para almacenar las temáticas cargadas desde backend
+  const [tematicasDisponibles, setTematicasDisponibles] = useState<string[]>([])
+
+  // NUEVO: Función para cargar todas las temáticas de la API
+  const cargarTematicas = useCallback(async () => {
+    try {
+      const tematicas = await apiService.obtenerTodasLasTematicas()
+      // Asumiendo que tematicas es un array de objetos con { nombre: string, ... }
+      const nombresTematicas = tematicas.map(t => t.nombre)
+      setTematicasDisponibles(nombresTematicas)
+    } catch (error) {
+      // Opcional: manejar error en la carga de temáticas
+      console.error('Error al cargar temáticas:', error)
+    }
+  }, [])
+
+  useEffect(() => {
+    cargarTematicas()
+  }, [cargarTematicas])
 
   // Generar nueva pregunta
   const generarPregunta = useCallback(async (request: GenerarPreguntaRequest = {}) => {
@@ -120,6 +140,8 @@ export const usePregunta = () => {
     validarRespuesta, 
     reiniciar,
     limpiarError,
+
+    tematicasDisponibles,
     
     // Estados computados
     puedeValidar: state.pregunta !== null && state.respuestaSeleccionada !== null,

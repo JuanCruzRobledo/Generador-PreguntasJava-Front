@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Play, RotateCcw } from 'lucide-react'
+import { ArrowRight, Play, RotateCcw, X } from 'lucide-react'
 import { usePreguntaContext } from '../contexts/PreguntaContext'
 import Button from './ui/Button'
 import LoadingSpinner from './ui/LoadingSpinner'
@@ -10,7 +10,6 @@ import { Dificultad, type GenerarPreguntaRequest } from '../types/api'
 
 interface FormData {
   dificultad: string
-  tematicaDeseada: string
 }
 
 export const PreguntaGenerator: React.FC = () => {
@@ -25,25 +24,64 @@ export const PreguntaGenerator: React.FC = () => {
     respuestaSeleccionada,
     seleccionarRespuesta,
     resultado,
+    tematicasDisponibles,
   } = usePreguntaContext()
 
-  const [mostrarRespuestaCorrecta, setMostrarRespuestaCorrecta] =
-    useState(false)
+  const [tematicasDeseadas, setTematicasDeseadas] = useState<string[]>([])
+  const [tematicasYaUtilizadas, setTematicasYaUtilizadas] = useState<string[]>(
+    []
+  )
+  const [inputTematica, setInputTematica] = useState<string>('')
 
-  const { register, handleSubmit, reset } = useForm<FormData>({
+  const { register, handleSubmit, reset, watch } = useForm<FormData>({
     defaultValues: {
       dificultad: '',
-      tematicaDeseada: '',
     },
   })
 
+  // Filtra las temáticas disponibles para mostrar como sugerencias,
+  // excluyendo las que ya están seleccionadas y filtrando por input
+  const sugerenciasFiltradas = useMemo(() => {
+    if (!inputTematica.trim()) return []
+    const filtro = inputTematica.trim().toLowerCase()
+    return tematicasDisponibles
+      .filter(t => !tematicasDeseadas.includes(t))
+      .filter(t => t.toLowerCase().includes(filtro))
+  }, [inputTematica, tematicasDisponibles, tematicasDeseadas])
+
+  // Agrega temática al presionar espacio o al seleccionar sugerencia
+  const agregarTematica = (tematica: string) => {
+    const t = tematica.toLowerCase()
+    if (!tematicasDeseadas.includes(t)) {
+      setTematicasDeseadas([...tematicasDeseadas, t])
+    }
+    setInputTematica('')
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === ' ' && inputTematica.trim()) {
+      e.preventDefault()
+      agregarTematica(inputTematica.trim())
+    }
+  }
+
+  const eliminarTematica = (tematica: string) => {
+    setTematicasDeseadas(prev => prev.filter(t => t !== tematica))
+  }
+
   const onSubmit = async (data: FormData) => {
     try {
-      const request: GenerarPreguntaRequest = {}
+      if (tematicasDeseadas.length === 0 && tematicasYaUtilizadas.length > 0) {
+        setTematicasDeseadas(tematicasYaUtilizadas)
+        setTematicasYaUtilizadas([])
+        return
+      }
 
-      if (data.dificultad) request.dificultad = data.dificultad as Dificultad
-      if (data.tematicaDeseada.trim())
-        request.tematicaDeseada = data.tematicaDeseada.trim()
+      const request: GenerarPreguntaRequest = {
+        dificultad: (data.dificultad as Dificultad) || undefined,
+        tematicasDeseadas,
+        tematicasYaUtilizadas,
+      }
 
       await generarPregunta(request)
       setMostrarRespuestaCorrecta(false)
@@ -51,6 +89,9 @@ export const PreguntaGenerator: React.FC = () => {
       console.error('Error al generar pregunta:', error)
     }
   }
+
+  const [mostrarRespuestaCorrecta, setMostrarRespuestaCorrecta] =
+    useState(false)
 
   const handleNuevaPregunta = () => {
     reiniciar()
@@ -62,22 +103,53 @@ export const PreguntaGenerator: React.FC = () => {
     if (!pregunta?.id || respuestaSeleccionada) return
 
     try {
-      // 1. Seleccionamos la respuesta (actualiza el estado)
       seleccionarRespuesta(respuesta)
-
-      // 2. Validamos con el backend
       await validarRespuesta(pregunta.id, respuesta)
-
-      // 3. Mostramos el resultado (el contexto ya actualizó resultado)
       setMostrarRespuestaCorrecta(true)
+
+      const tematicaPrincipal = pregunta.tematicas?.[0]?.nombre
+
+      if (
+        tematicaPrincipal &&
+        !tematicasYaUtilizadas.includes(tematicaPrincipal)
+      ) {
+        setTematicasYaUtilizadas([...tematicasYaUtilizadas, tematicaPrincipal])
+        setTematicasDeseadas(
+          tematicasDeseadas.filter(t => t !== tematicaPrincipal)
+        )
+      }
     } catch (error) {
       console.error('Error al validar respuesta:', error)
     }
   }
 
+  const handleSiguientePregunta = async () => {
+    if (tematicasDeseadas.length === 0 && tematicasYaUtilizadas.length > 0) {
+      setTematicasDeseadas(tematicasYaUtilizadas)
+      setTematicasYaUtilizadas([])
+      return
+    }
+
+    reiniciar()
+    setMostrarRespuestaCorrecta(false)
+
+    const dificultad = watch('dificultad')
+
+    const request: GenerarPreguntaRequest = {
+      dificultad: (dificultad as Dificultad) || undefined,
+      tematicasDeseadas,
+      tematicasYaUtilizadas,
+    }
+
+    try {
+      await generarPregunta(request)
+    } catch (error) {
+      console.error('Error al generar siguiente pregunta:', error)
+    }
+  }
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
-      {/* Header */}
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
           Generador de Preguntas Java
@@ -88,10 +160,8 @@ export const PreguntaGenerator: React.FC = () => {
         </p>
       </div>
 
-      {/* Error Alert */}
       {error && <ErrorAlert error={error} onClose={limpiarError} />}
 
-      {/* Formulario de generación */}
       {!pregunta && (
         <div className="bg-white rounded-lg shadow-md p-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -115,24 +185,60 @@ export const PreguntaGenerator: React.FC = () => {
                 </select>
               </div>
 
-              {/* Input de temática */}
-              <div>
+              {/* Input de temática con espacio para tags y sugerencias */}
+              <div className="relative">
                 <label
-                  htmlFor="tematica_deseada"
+                  htmlFor="tematicas"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  Temática deseada (opcional)
+                  Temáticas deseadas (usa espacio para agregar)
                 </label>
                 <input
-                  {...register('tematicaDeseada')}
                   type="text"
-                  placeholder="ej: arrays, bucles, condicionales..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={inputTematica}
+                  onChange={e => setInputTematica(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Ej: bucles arrays condicionales"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  autoComplete="off"
                 />
+
+                {/* Lista de sugerencias */}
+                {sugerenciasFiltradas.length > 0 && (
+                  <ul className="absolute z-10 max-h-48 w-full overflow-auto rounded border bg-white shadow-md mt-1">
+                    {sugerenciasFiltradas.map((sugerencia, i) => (
+                      <li
+                        key={i}
+                        className="cursor-pointer px-3 py-1 hover:bg-blue-100"
+                        onClick={() => agregarTematica(sugerencia)}
+                      >
+                        {sugerencia}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {/* Lista de etiquetas */}
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {tematicasDeseadas.map((tematica, index) => (
+                    <span
+                      key={index}
+                      className="flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                    >
+                      {tematica}
+                      <button
+                        type="button"
+                        onClick={() => eliminarTematica(tematica)}
+                        className="ml-2 text-blue-500 hover:text-blue-700"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Botón de generar */}
             <div className="text-center">
               <Button
                 type="submit"
@@ -149,12 +255,10 @@ export const PreguntaGenerator: React.FC = () => {
         </div>
       )}
 
-      {/* Loading */}
       {isLoading && !pregunta && (
         <LoadingSpinner size="lg" text="Generando pregunta..." />
       )}
 
-      {/* Pregunta generada */}
       {pregunta && (
         <div className="space-y-6">
           <PreguntaCard
@@ -166,10 +270,18 @@ export const PreguntaGenerator: React.FC = () => {
             resultado={resultado}
           />
 
-          <div className="text-center">
+          <div className="text-center space-x-4">
             <Button onClick={handleNuevaPregunta} variant="outline" size="lg">
               <RotateCcw className="w-5 h-5 mr-2" />
-              Nueva Pregunta
+              Nueva Generación
+            </Button>
+            <Button
+              onClick={handleSiguientePregunta}
+              variant="outline"
+              size="lg"
+            >
+              <ArrowRight className="w-5 h-5 mr-2" />
+              Siguiente Pregunta
             </Button>
           </div>
         </div>

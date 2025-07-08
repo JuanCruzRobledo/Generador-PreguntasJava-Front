@@ -24,6 +24,7 @@ interface PreguntaContextType {
   ) => Promise<ValidacionResponse>
   reiniciar: () => void
   limpiarError: () => void
+  tematicasDisponibles: string[]
 }
 
 const PreguntaContext = createContext<PreguntaContextType | undefined>(
@@ -50,6 +51,7 @@ export const PreguntaProvider: React.FC<PreguntaProviderProps> = ({
     validarRespuesta: state.validarRespuesta,
     reiniciar: state.reiniciar,
     limpiarError: state.limpiarError,
+    tematicasDisponibles: state.tematicasDisponibles,
   }
 
   return (
