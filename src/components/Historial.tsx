@@ -16,7 +16,6 @@ export const Historial: React.FC = () => {
     refrescar,
     limpiarError,
     totalPreguntas,
-    totalTematicas,
     estaVacio,
   } = useHistorialContext()
 
@@ -47,8 +46,7 @@ export const Historial: React.FC = () => {
               Historial de Preguntas
             </h1>
             <p className="text-gray-600">
-              {totalPreguntas} preguntas generadas • {totalTematicas} temáticas
-              registradas
+              {totalPreguntas} preguntas generadas • {0} temáticas registradas
             </p>
           </div>
         </div>

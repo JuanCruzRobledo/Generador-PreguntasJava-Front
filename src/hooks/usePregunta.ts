@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { apiService } from '../services/apiService';
-import type { GenerarPreguntaRequest, Pregunta, ValidacionResponse, ValidarRespuestaRequest } from '../types/api';
+import type { GenerarPreguntaRequest, Pregunta, ValidacionResponse } from '../types/api';
 
 interface PreguntaState {
   pregunta: Pregunta | null;
