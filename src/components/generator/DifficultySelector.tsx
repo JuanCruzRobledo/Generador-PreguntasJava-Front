@@ -55,23 +55,23 @@ export const DifficultySelector: React.FC<DifficultySelectorProps> = ({
 }) => {
   return (
     <motion.div
-      className={cn('bg-white dark:bg-gray-800 rounded-lg shadow-md p-6', className)}
+      className={cn('bg-white dark:bg-gray-800 rounded-lg shadow-md p-4', className)}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="flex items-center mb-4">
+      <div className="flex items-center mb-3">
         <TrendingUp className="w-5 h-5 mr-2 text-indigo-600 dark:text-indigo-400" />
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
           Selecciona la Dificultad
         </h3>
       </div>
 
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
         Elige el nivel de complejidad para tu pregunta (por defecto: Media)
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="flex flex-col sm:flex-row gap-3">
         {dificultadOptions.map((option, index) => {
           const Icon = option.icon
           const isSelected = selectedDificultad === option.value
@@ -81,8 +81,9 @@ export const DifficultySelector: React.FC<DifficultySelectorProps> = ({
               key={option.value}
               onClick={() => onDificultadSelect(option.value)}
               className={cn(
-                'p-4 rounded-lg border-2 transition-all duration-200 text-left',
+                'flex-1 p-2 sm:p-3 rounded-lg border-2 transition-all duration-200',
                 'hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500',
+                'flex items-center justify-center text-center min-h-[60px]',
                 isSelected
                   ? `${option.borderColor} ${option.bgColor} ${option.color}`
                   : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
@@ -90,24 +91,24 @@ export const DifficultySelector: React.FC<DifficultySelectorProps> = ({
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.2, delay: index * 0.1 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <div className="flex items-center mb-2">
-                <Icon className={cn('w-5 h-5 mr-2', isSelected ? option.color : 'text-gray-400')} />
+              <div className="flex flex-col items-center">
+                <Icon className={cn('w-5 h-5 mb-1', isSelected ? option.color : 'text-gray-400')} />
                 <span className={cn(
-                  'font-medium',
+                  'font-medium text-sm',
                   isSelected ? option.color : 'text-gray-900 dark:text-white'
                 )}>
                   {option.label}
                 </span>
+                <p className={cn(
+                  'text-xs mt-1 hidden sm:block',
+                  isSelected ? option.color : 'text-gray-600 dark:text-gray-400'
+                )}>
+                  {option.description}
+                </p>
               </div>
-              <p className={cn(
-                'text-sm',
-                isSelected ? option.color : 'text-gray-600 dark:text-gray-400'
-              )}>
-                {option.description}
-              </p>
             </motion.button>
           )
         })}

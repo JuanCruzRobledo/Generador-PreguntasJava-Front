@@ -22,7 +22,8 @@ export const useCategorias = (lenguajeId: number | null) => {
     queryFn: () => categoriasService.obtenerCategoriasPorLenguaje(lenguajeId!),
     enabled: !!lenguajeId, // Solo ejecuta si hay un lenguaje seleccionado
     staleTime: 5 * 60 * 1000, // 5 minutos
-    cacheTime: 10 * 60 * 1000, // 10 minutos
+    // TODO: revisar implementación - cacheTime no soportado en esta versión de react-query
+    // cacheTime: 10 * 60 * 1000, // 10 minutos
     refetchOnWindowFocus: false
   })
 

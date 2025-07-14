@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ArrowRight, Play, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react'
+import { ArrowRight, Play, RotateCcw, ChevronDown } from 'lucide-react' // TODO: revisar implementación - ChevronUp eliminado
 import { motion, AnimatePresence } from 'framer-motion'
 import { usePreguntaContext } from '../contexts/PreguntaContext'
 import Button from './ui/Button'
@@ -9,7 +9,8 @@ import PreguntaCard from './PreguntaCard'
 import { LanguageSelector } from './generator/LanguageSelector'
 import { CategorySelector } from './generator/CategorySelector'
 import { DifficultySelector } from './generator/DifficultySelector'
-import { Dificultad, type GenerarPreguntaRequest, type Pregunta, type PreguntaRespondida, type Lenguaje, type CategoriaTematica, type TagTematica } from '../types/api'
+import { Dificultad, type GenerarPreguntaRequest, type Lenguaje, type CategoriaTematica, type TagTematica } from '../types/api'
+// TODO: revisar implementación - Pregunta y PreguntaRespondida comentados por no usarse
 
 /**
  * Componente principal para manejar la generación de preguntas de programación
@@ -146,20 +147,20 @@ const {
           </AnimatePresence>
         </div>
         
-        {/* Grid para Categoría y Dificultad */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <CategorySelector
-            lenguajeId={selectedLenguaje?.id ?? null}
-            selectedCategoria={selectedCategoria}
-            onCategoriaSelect={setSelectedCategoria}
-            selectedTags={selectedTags}
-            onTagToggle={handleTagToggle}
-          />
-          <DifficultySelector
-            selectedDificultad={selectedDificultad}
-            onDificultadSelect={setSelectedDificultad}
-          />
-        </div>
+        {/* Selector de Categoría */}
+        <CategorySelector
+          lenguajeId={selectedLenguaje?.id ?? null}
+          selectedCategoria={selectedCategoria}
+          onCategoriaSelect={setSelectedCategoria}
+          selectedTags={selectedTags}
+          onTagToggle={handleTagToggle}
+        />
+        
+        {/* Selector de Dificultad */}
+        <DifficultySelector
+          selectedDificultad={selectedDificultad}
+          onDificultadSelect={setSelectedDificultad}
+        />
       </div>
 
       {/* Botón para generar pregunta */}

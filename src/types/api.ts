@@ -85,7 +85,7 @@ export interface PreguntaState {
 export interface PreguntaRespondida {
   id: number;
   enunciado: string;
-  codigoJava?: string;
+  codigoFuente?: string; // Renombrado de codigoJava a codigoFuente
   respuestaCorrecta: string;
   respuestaUsuario?: string;   
   fechaRespuesta?: string;      
@@ -117,3 +117,10 @@ export interface HistorialState {
 export type ApiResponsePregunta = ApiResponse<Pregunta>;
 export type ApiResponseValidacion = ApiResponse<ValidacionResponse>;
 export type ApiResponseHistorial = ApiResponse<PreguntaRespondida[]>;
+
+// TODO: revisar implementación - export temporal para evitar errores
+export interface Tematica {
+  id: number;
+  nombre: string;
+  descripcion?: string;
+}

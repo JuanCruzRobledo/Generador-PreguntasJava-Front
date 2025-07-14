@@ -22,7 +22,8 @@ export const useTags = (categoriaId: number | null) => {
     queryFn: () => tagsService.obtenerTagsPorCategoria(categoriaId!),
     enabled: !!categoriaId, // Solo ejecuta si hay una categoría seleccionada
     staleTime: 5 * 60 * 1000, // 5 minutos
-    cacheTime: 10 * 60 * 1000, // 10 minutos
+    // TODO: revisar implementación - cacheTime no soportado en esta versión de react-query
+    // cacheTime: 10 * 60 * 1000, // 10 minutos
     refetchOnWindowFocus: false
   })
 
