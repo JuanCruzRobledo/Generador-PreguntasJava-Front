@@ -37,6 +37,7 @@ const {
   const [selectedTags, setSelectedTags] = useState<TagTematica[]>([])
   const [selectedDificultad, setSelectedDificultad] = useState<Dificultad | null>(Dificultad.MEDIA)
   const [isLanguageVisible, setIsLanguageVisible] = useState(true);
+  const [showGenerationOptions, setShowGenerationOptions] = useState(true); // Controla si mostrar las opciones
 
   const toggleLanguageVisibility = () => {
     setIsLanguageVisible(prev => !prev);
@@ -51,6 +52,12 @@ const {
     setSelectedTags([]);
   }
 
+  const handleCategoriaSelect = (categoria: CategoriaTematica) => {
+    setSelectedCategoria(categoria)
+    // Limpiar tags al cambiar de categoría
+    setSelectedTags([])
+  }
+
   const handleTagToggle = (tag: TagTematica) => {
     if (selectedTags.some(selectedTag => selectedTag.id === tag.id)) {
       setSelectedTags(prev => prev.filter(t => t.id !== tag.id))
@@ -61,6 +68,9 @@ const {
 
   const onSubmit = async () => {
     if (!selectedLenguaje || !selectedCategoria) return
+
+    // Ocultar opciones de generación cuando se empieza a generar
+    setShowGenerationOptions(false)
 
     const request: GenerarPreguntaRequest = {
       lenguajeId: selectedLenguaje.id,
@@ -73,6 +83,8 @@ const {
       await generarPregunta(request)
     } catch (error) {
       console.error('Error al generar pregunta:', error)
+      // Si hay error, mostrar opciones de nuevo
+      setShowGenerationOptions(true)
     }
   }
 
@@ -83,6 +95,7 @@ const {
     setSelectedTags([])
     setSelectedDificultad(Dificultad.MEDIA)
     setIsLanguageVisible(true)
+    setShowGenerationOptions(true) // Mostrar opciones de generación
   }
 
   const handleRespuestaSeleccionada = async (respuesta: string) => {
@@ -106,8 +119,9 @@ const {
 
       {error && <ErrorAlert error={error} onClose={limpiarError} />}
 
-{/* Selectors */}
-      <div className="space-y-4">
+      {/* Opciones de generación - solo se muestran antes de generar */}
+      {showGenerationOptions && (
+        <div className="space-y-4">
         {/* Selector de Lenguaje */}
         <div>
           <motion.button 
@@ -151,7 +165,7 @@ const {
         <CategorySelector
           lenguajeId={selectedLenguaje?.id ?? null}
           selectedCategoria={selectedCategoria}
-          onCategoriaSelect={setSelectedCategoria}
+          onCategoriaSelect={handleCategoriaSelect}
           selectedTags={selectedTags}
           onTagToggle={handleTagToggle}
         />
@@ -161,22 +175,22 @@ const {
           selectedDificultad={selectedDificultad}
           onDificultadSelect={setSelectedDificultad}
         />
-      </div>
-
-      {/* Botón para generar pregunta */}
-      <div className="text-center">
-        <Button
-          onClick={onSubmit}
-          variant="primary"
-          size="lg"
-          isLoading={isGenerandoPregunta}
-          disabled={isGenerandoPregunta || !selectedLenguaje || !selectedCategoria}
-          className="min-w-48"
-        >
-          <Play className="w-5 h-5 mr-2" />
-          Generar Pregunta
-        </Button>
-      </div>
+          {/* Botón para generar pregunta */}
+          <div className="text-center">
+            <Button
+              onClick={onSubmit}
+              variant="primary"
+              size="lg"
+              isLoading={isGenerandoPregunta}
+              disabled={isGenerandoPregunta || !selectedLenguaje || !selectedCategoria}
+              className="min-w-48"
+            >
+              <Play className="w-5 h-5 mr-2" />
+              Generar Pregunta
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Loading spinner */}
       {isGenerandoPregunta && (<LoadingSpinner size="lg" text="Generando pregunta..." />)}
