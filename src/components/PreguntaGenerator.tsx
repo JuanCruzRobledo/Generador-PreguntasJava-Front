@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { ArrowRight, Play, RotateCcw } from 'lucide-react'
+import { ArrowRight, Play, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { usePreguntaContext } from '../contexts/PreguntaContext'
 import Button from './ui/Button'
 import LoadingSpinner from './ui/LoadingSpinner'
@@ -7,7 +8,6 @@ import ErrorAlert from './ui/ErrorAlert'
 import PreguntaCard from './PreguntaCard'
 import { LanguageSelector } from './generator/LanguageSelector'
 import { CategorySelector } from './generator/CategorySelector'
-import { TagSelector } from './generator/TagSelector'
 import { DifficultySelector } from './generator/DifficultySelector'
 import { Dificultad, type GenerarPreguntaRequest, type Pregunta, type PreguntaRespondida, type Lenguaje, type CategoriaTematica, type TagTematica } from '../types/api'
 
@@ -17,7 +17,7 @@ import { Dificultad, type GenerarPreguntaRequest, type Pregunta, type PreguntaRe
  * Con flujo: Lenguaje - Categoría - Tags - Dificultad - Generar Pregunta
  */
 export const PreguntaGenerator: React.FC = () => {
-  const {
+const {
     pregunta,
     isGenerandoPregunta,
     isValidandoRespuesta,
@@ -35,6 +35,20 @@ export const PreguntaGenerator: React.FC = () => {
   const [selectedCategoria, setSelectedCategoria] = useState<CategoriaTematica | null>(null)
   const [selectedTags, setSelectedTags] = useState<TagTematica[]>([])
   const [selectedDificultad, setSelectedDificultad] = useState<Dificultad | null>(Dificultad.MEDIA)
+  const [isLanguageVisible, setIsLanguageVisible] = useState(true);
+
+  const toggleLanguageVisibility = () => {
+    setIsLanguageVisible(prev => !prev);
+  }
+
+  const handleLenguajeSelect = (lenguaje: Lenguaje) => {
+    setSelectedLenguaje(lenguaje);
+    // Ocultar automáticamente el selector después de seleccionar
+    setIsLanguageVisible(false);
+    // Limpiar categoría y tags al cambiar de lenguaje
+    setSelectedCategoria(null);
+    setSelectedTags([]);
+  }
 
   const handleTagToggle = (tag: TagTematica) => {
     if (selectedTags.some(selectedTag => selectedTag.id === tag.id)) {
@@ -67,6 +81,7 @@ export const PreguntaGenerator: React.FC = () => {
     setSelectedCategoria(null)
     setSelectedTags([])
     setSelectedDificultad(Dificultad.MEDIA)
+    setIsLanguageVisible(true)
   }
 
   const handleRespuestaSeleccionada = async (respuesta: string) => {
@@ -90,26 +105,61 @@ export const PreguntaGenerator: React.FC = () => {
 
       {error && <ErrorAlert error={error} onClose={limpiarError} />}
 
-      {/* Selectors */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <LanguageSelector
-          selectedLenguaje={selectedLenguaje}
-          onLenguajeSelect={setSelectedLenguaje}
-        />
-        <CategorySelector
-          lenguajeId={selectedLenguaje?.id ?? null}
-          selectedCategoria={selectedCategoria}
-          onCategoriaSelect={setSelectedCategoria}
-        />
-        <TagSelector
-          categoriaId={selectedCategoria?.id ?? null}
-          selectedTags={selectedTags}
-          onTagToggle={handleTagToggle}
-        />
-        <DifficultySelector
-          selectedDificultad={selectedDificultad}
-          onDificultadSelect={setSelectedDificultad}
-        />
+{/* Selectors */}
+      <div className="space-y-4">
+        {/* Selector de Lenguaje */}
+        <div>
+          <motion.button 
+            onClick={toggleLanguageVisibility} 
+            className="w-full mb-4 p-3 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-lg border-2 border-blue-300 dark:border-blue-600 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-all duration-200 flex items-center justify-between"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <span className="flex items-center">
+              {selectedLenguaje ? (
+                <span>Lenguaje: <strong>{selectedLenguaje.nombre}</strong></span>
+              ) : (
+                <span>Seleccionar Lenguaje</span>
+              )}
+            </span>
+            <motion.div
+              animate={{ rotate: isLanguageVisible ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ChevronDown className="w-5 h-5" />
+            </motion.div>
+          </motion.button>
+          <AnimatePresence>
+            {isLanguageVisible && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <LanguageSelector
+                  selectedLenguaje={selectedLenguaje}
+                  onLenguajeSelect={handleLenguajeSelect}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+        
+        {/* Grid para Categoría y Dificultad */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CategorySelector
+            lenguajeId={selectedLenguaje?.id ?? null}
+            selectedCategoria={selectedCategoria}
+            onCategoriaSelect={setSelectedCategoria}
+            selectedTags={selectedTags}
+            onTagToggle={handleTagToggle}
+          />
+          <DifficultySelector
+            selectedDificultad={selectedDificultad}
+            onDificultadSelect={setSelectedDificultad}
+          />
+        </div>
       </div>
 
       {/* Botón para generar pregunta */}

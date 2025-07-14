@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* Custom theme variables */
 :root {
@@ -62,5 +63,3 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
-
-@import 'tailwindcss'
