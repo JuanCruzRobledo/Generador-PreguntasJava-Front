@@ -16,35 +16,48 @@ export const Dificultad = {
 
 export type Dificultad = typeof Dificultad[keyof typeof Dificultad];
 
-// Tipos para las entidades del dominio
-export interface Opcion {
+// Tipos para las entidades del dominio (actualizados según backend DTOs)
+export interface Lenguaje {
   id: number;
-  contenido: string;
+  nombre: string;
+  descripcion: string;
 }
 
-export interface Tematica {
+export interface CategoriaTematica {
+  id: number;
+  nombre: string;
+  descripcion: string;
+}
+
+export interface TagTematica {
   id: number;
   nombre: string;
   contadorUsos: number;
   timestampUltimoUso: string;
 }
 
-export interface Pregunta {
+export interface Opcion {
   id: number;
-  codigoJava: string;
-  enunciado: string;
-  dificultad: Dificultad;
-  respuestaCorrecta: string;
-  explicacion: string;
-  opciones: Opcion[];
-  tematicas: Tematica[];
+  contenido: string;
 }
 
-// Tipos para las requests
+export interface Pregunta {
+  id: number;
+  codigoFuente: string;
+  enunciado: string;
+  dificultad: Dificultad;
+  explicacion: string;
+  opciones: Opcion[];
+  tagsTematicas: TagTematica[];
+}
+
+// Tipos para las requests (actualizados según backend DTOs)
 export interface GenerarPreguntaRequest {
-  dificultad?: Dificultad;
-  tematicasDeseadas?: string[];
-  tematicasYaUtilizadas?: string[];
+  dificultad?: string;
+  lenguajeId?: number;
+  categoriaId?: number;
+  tagsTematicas?: string[];
+  tagsYaUtilizados?: string[];
 }
 
 export interface ValidarRespuestaRequest {

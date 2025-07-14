@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Play, History, BarChart3, Coffee } from 'lucide-react';
+import { ThemeToggle } from './ui/ThemeToggle';
 
 interface NavigationProps {
   backendStatus: 'checking' | 'online' | 'offline';
@@ -55,13 +56,13 @@ export const Navigation: React.FC<NavigationProps> = ({ backendStatus }) => {
   };
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200">
+    <nav className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <Coffee className="w-8 h-8 text-blue-600 mr-3" />
-            <span className="text-xl font-bold text-gray-900">
+            <Coffee className="w-8 h-8 text-blue-600 dark:text-blue-400 mr-3" />
+            <span className="text-xl font-bold text-gray-900 dark:text-white">
               Java Quiz Generator
             </span>
           </div>
@@ -78,8 +79,8 @@ export const Navigation: React.FC<NavigationProps> = ({ backendStatus }) => {
                   className={({ isActive }) => `
                     flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200
                     ${isActive 
-                      ? 'bg-blue-100 text-blue-700 border-2 border-blue-200' 
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                      ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border-2 border-blue-200 dark:border-blue-700' 
+                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
                     }
                   `}
                   title={tab.description}
@@ -91,10 +92,16 @@ export const Navigation: React.FC<NavigationProps> = ({ backendStatus }) => {
             })}
           </div>
 
-          {/* Indicador de backend */}
-          <div className="flex items-center space-x-2">
-            <div className={`w-2 h-2 rounded-full ${getBackendStatusColor()}`}></div>
-            <span className="text-xs text-gray-500">{getBackendStatusText()}</span>
+          {/* Controles de la derecha */}
+          <div className="flex items-center space-x-4">
+            {/* Theme Toggle */}
+            <ThemeToggle size="sm" />
+            
+            {/* Indicador de backend */}
+            <div className="flex items-center space-x-2">
+              <div className={`w-2 h-2 rounded-full ${getBackendStatusColor()}`}></div>
+              <span className="text-xs text-gray-500 dark:text-gray-400">{getBackendStatusText()}</span>
+            </div>
           </div>
         </div>
       </div>

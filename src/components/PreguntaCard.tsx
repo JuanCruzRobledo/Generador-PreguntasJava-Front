@@ -65,28 +65,28 @@ const PreguntaCard: React.FC<PreguntaCardProps> = ({
       if (resultado?.esCorrecta) {
         // La respuesta fue correcta: pintar la opción seleccionada y la correcta en verde
         if (opcion === respuestaSeleccionada) {
-          baseClass += 'border-green-500 bg-green-50 text-green-800 '
+          baseClass += 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-200 '
         } else if (opcion === respuestaCorrecta) {
-          baseClass += 'border-green-500 bg-green-50 text-green-800 '
+          baseClass += 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-200 '
         } else {
-          baseClass += 'border-gray-300 bg-gray-50 text-gray-600 '
+          baseClass += 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 '
         }
       } else {
         // La respuesta fue incorrecta: la correcta verde y la seleccionada incorrecta roja
         if (opcion === respuestaCorrecta) {
-          baseClass += 'border-green-500 bg-green-50 text-green-800 '
+          baseClass += 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-200 '
         } else if (opcion === respuestaSeleccionada) {
-          baseClass += 'border-red-500 bg-red-50 text-red-800 '
+          baseClass += 'border-red-500 bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 '
         } else {
-          baseClass += 'border-gray-300 bg-gray-50 text-gray-600 '
+          baseClass += 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 '
         }
       }
     } else {
       if (opcion === respuestaSeleccionada) {
-        baseClass += 'border-blue-500 bg-blue-50 text-blue-800 '
+        baseClass += 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 '
       } else {
         baseClass +=
-          'border-gray-300 bg-white hover:border-blue-300 hover:bg-blue-50 '
+          'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 hover:border-blue-300 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 '
       }
     }
 
@@ -126,17 +126,17 @@ const PreguntaCard: React.FC<PreguntaCardProps> = ({
 
   return (
     <div
-      className={`bg-white rounded-lg shadow-md p-6 mb-6 ${className}`.trim()}
+      className={`bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6 transition-colors duration-300 ${className}`.trim()}
     >
-      <h3 className="text-xl font-semibold mb-4 text-gray-800">
+      <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">
         {pregunta.enunciado}
       </h3>
 
-      {/* Código Java si está disponible */}
-      {'codigoJava' in pregunta && pregunta.codigoJava && (
+      {/* Código fuente si está disponible */}
+      {(pregunta.codigoFuente || ('codigoJava' in pregunta && pregunta.codigoJava)) && (
         <div className="mb-4 p-4 bg-gray-900 rounded-lg overflow-x-auto">
           <pre className="text-green-400 text-sm">
-            <code>{pregunta.codigoJava}</code>
+            <code>{pregunta.codigoFuente || ('codigoJava' in pregunta && pregunta.codigoJava)}</code>
           </pre>
         </div>
       )}
@@ -159,16 +159,16 @@ const PreguntaCard: React.FC<PreguntaCardProps> = ({
       {/* Resultado de la validación */}
       {resultado && (
         <div
-          className={`mt-4 p-4 rounded-lg border ${
+          className={`mt-4 p-4 rounded-lg border transition-colors duration-300 ${
             resultado.esCorrecta
-              ? 'bg-green-50 border-green-200'
-              : 'bg-red-50 border-red-200'
+              ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-700'
+              : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700'
           }`}
         >
           <div className="flex items-center gap-2 mb-2">
             <span
               className={`text-sm font-semibold ${
-                resultado.esCorrecta ? 'text-green-800' : 'text-red-800'
+                resultado.esCorrecta ? 'text-green-800 dark:text-green-200' : 'text-red-800 dark:text-red-200'
               }`}
             >
               {resultado.esCorrecta
@@ -178,7 +178,7 @@ const PreguntaCard: React.FC<PreguntaCardProps> = ({
           </div>
 
           {!resultado.esCorrecta && (
-            <p className="text-sm text-red-700 mb-2">
+            <p className="text-sm text-red-700 dark:text-red-300 mb-2">
               <span className="font-medium">Respuesta correcta:</span>{' '}
               {resultado.respuestaCorrecta}
             </p>
@@ -186,7 +186,7 @@ const PreguntaCard: React.FC<PreguntaCardProps> = ({
 
           <p
             className={`text-sm ${
-              resultado.esCorrecta ? 'text-green-700' : 'text-red-700'
+              resultado.esCorrecta ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'
             }`}
           >
             <span className="font-medium">Explicación:</span>{' '}
@@ -197,8 +197,8 @@ const PreguntaCard: React.FC<PreguntaCardProps> = ({
 
       {/* Fallback para mostrar explicación general si no hay resultado específico */}
       {mostrarRespuestaCorrecta && !resultado && pregunta.explicacion && (
-        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">
+        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg transition-colors duration-300">
+          <p className="text-sm text-blue-800 dark:text-blue-200">
             <span className="font-semibold">Explicación:</span>{' '}
             {pregunta.explicacion}
           </p>

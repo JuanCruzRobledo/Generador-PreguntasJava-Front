@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
-import { apiService } from '../services/apiService';
+import { useState, useCallback } from 'react';
+import { preguntasService } from '../services/preguntasService';
 import type { GenerarPreguntaRequest, Pregunta, ValidacionResponse } from '../types/api';
 
 interface PreguntaState {
@@ -23,32 +23,12 @@ export const usePregunta = () => {
     error: null,
   });
 
-  // NUEVO: Estado para almacenar las temáticas cargadas desde backend
-  const [tematicasDisponibles, setTematicasDisponibles] = useState<string[]>([])
-
-  // NUEVO: Función para cargar todas las temáticas de la API
-  const cargarTematicas = useCallback(async () => {
-    try {
-      const tematicas = await apiService.obtenerTodasLasTematicas()
-      // Asumiendo que tematicas es un array de objetos con { nombre: string, ... }
-      const nombresTematicas = tematicas.map(t => t.nombre)
-      setTematicasDisponibles(nombresTematicas)
-    } catch (error) {
-      // Opcional: manejar error en la carga de temáticas
-      console.error('Error al cargar temáticas:', error)
-    }
-  }, [])
-
-  useEffect(() => {
-    cargarTematicas()
-  }, [cargarTematicas])
-
   // Generar nueva pregunta
-  const generarPregunta = useCallback(async (request: GenerarPreguntaRequest = {}) => {
-    setState(prev => ({ ...prev,isGenerandoPregunta: true, isLoading: true, error: null }));
+  const generarPregunta = useCallback(async (request: GenerarPreguntaRequest) => {
+    setState(prev => ({ ...prev, isGenerandoPregunta: true, isLoading: true, error: null }));
     
     try {
-      const pregunta = await apiService.generarPregunta(request);
+      const pregunta = await preguntasService.generarPregunta(request);
       setState(prev => ({
         ...prev,
         pregunta,
@@ -90,7 +70,7 @@ export const usePregunta = () => {
       setState(prev => ({ ...prev, isValidandoRespuesta: true, isLoading: true, error: null }));
 
       try {
-        const resultado = await apiService.validarRespuesta({ preguntaId, opcionSeleccionada });
+        const resultado = await preguntasService.validarRespuesta({ preguntaId, opcionSeleccionada });
 
         setState(prev => ({
           ...prev,
@@ -148,8 +128,6 @@ export const usePregunta = () => {
     validarRespuesta, 
     reiniciar,
     limpiarError,
-
-    tematicasDisponibles,
     
     // Estados computados
     puedeValidar: state.pregunta !== null && state.respuestaSeleccionada !== null,

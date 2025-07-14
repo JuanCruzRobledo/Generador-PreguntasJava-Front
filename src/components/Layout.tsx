@@ -58,7 +58,7 @@ export default function Layout() {
       return (
         <div className="flex flex-col items-center justify-center min-h-[400px]">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-gray-600">
+          <p className="mt-4 text-gray-600 dark:text-gray-300">
             Verificando conexión con el servidor...
           </p>
         </div>
@@ -85,7 +85,7 @@ export default function Layout() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
       <Navigation backendStatus={backendStatus} />
 
       <main className="pt-6">
@@ -110,8 +110,8 @@ export default function Layout() {
         {renderContent()}
       </main>
 
-      <footer className="mt-12 py-6 border-t border-gray-200 bg-white">
-        <div className="max-w-6xl mx-auto px-6 text-center text-gray-500">
+      <footer className="mt-12 py-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-colors duration-300">
+        <div className="max-w-6xl mx-auto px-6 text-center text-gray-500 dark:text-gray-400">
           <p>
             Generador de Preguntas Java - Desarrollado con React + TypeScript
           </p>

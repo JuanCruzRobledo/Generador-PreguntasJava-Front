@@ -18,7 +18,7 @@ interface PreguntaContextType {
     explicacion: string
     esCorrecta: boolean
   } | null
-  generarPregunta: (request?: GenerarPreguntaRequest) => Promise<Pregunta>
+  generarPregunta: (request: GenerarPreguntaRequest) => Promise<Pregunta>
   seleccionarRespuesta: (respuesta: string) => void
   validarRespuesta: (
     preguntaId: number,
@@ -26,7 +26,6 @@ interface PreguntaContextType {
   ) => Promise<ValidacionResponse>
   reiniciar: () => void
   limpiarError: () => void
-  tematicasDisponibles: string[]
 }
 
 const PreguntaContext = createContext<PreguntaContextType | undefined>(
@@ -55,7 +54,6 @@ export const PreguntaProvider: React.FC<PreguntaProviderProps> = ({
     validarRespuesta: state.validarRespuesta,
     reiniciar: state.reiniciar,
     limpiarError: state.limpiarError,
-    tematicasDisponibles: state.tematicasDisponibles,
   }
 
   return (
