@@ -1,54 +1,18 @@
 // services/usuarioService.ts
-import axios, { type AxiosResponse } from 'axios';
+import httpClient, { handleApiResponse, handleApiError } from './httpClient';
 import type { Usuario } from '../types/usuario';
+import type { ApiResponse } from '../types/api';
 
-// Axios instance
-const usuarioAPI = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/v1',
-  timeout: Number(import.meta.env.VITE_API_TIMEOUT) || 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Tipo de respuesta estándar del backend
-type ApiResponse<T> = {
-  exitoso: boolean;
-  mensaje: string;
-  datos: T;
-  timestamp?: string;
-};
-
-// Helpers
-const handleApiResponse = <T>(response: AxiosResponse<ApiResponse<T>>): T => {
-  if (response.data.exitoso) {
-    return response.data.datos;
-  } else {
-    throw new Error(response.data.mensaje || 'Error en la API');
-  }
-};
-
-const handleApiError = (error: any): never => {
-  console.error('API Error:', error);
-
-  if (error.response?.data?.mensaje) {
-    throw new Error(error.response.data.mensaje);
-  } else if (error.response?.status === 404) {
-    throw new Error('Recurso no encontrado');
-  } else if (error.response?.status >= 500) {
-    throw new Error('Error interno del servidor');
-  } else if (error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK') {
-    throw new Error('No se pudo conectar con el servidor. Verifica que el backend esté ejecutándose.');
-  } else {
-    throw new Error(error.message || 'Error desconocido');
-  }
-};
-
-// Servicio de usuario
+// 👤 Servicio de usuario usando httpClient centralizado
 export const usuarioService = {
+  
+  /**
+   * 🎭 Crear un usuario anónimo
+   * @returns Promise<Usuario> Usuario anónimo creado
+   */
   async crearUsuarioAnonimo(): Promise<Usuario> {
     try {
-      const response = await usuarioAPI.post<ApiResponse<Usuario>>('/usuarios/anonimo');
+      const response = await httpClient.post<ApiResponse<Usuario>>('/usuarios/anonimo');
       const user = handleApiResponse(response);
       localStorage.setItem('user_data', JSON.stringify(user));
       return user;
@@ -57,9 +21,13 @@ export const usuarioService = {
     }
   },
 
+  /**
+   * 👤 Obtener perfil del usuario autenticado
+   * @returns Promise<Usuario> Perfil del usuario
+   */
   async obtenerPerfil(): Promise<Usuario> {
     try {
-      const response = await usuarioAPI.get<ApiResponse<Usuario>>('/usuarios/perfil');
+      const response = await httpClient.get<ApiResponse<Usuario>>('/usuarios/perfil');
       const user = handleApiResponse(response);
       localStorage.setItem('user_data', JSON.stringify(user));
       return user;
@@ -68,9 +36,15 @@ export const usuarioService = {
     }
   },
 
+  /**
+   * ✏️ Actualizar perfil del usuario
+   * @param usuarioId ID del usuario
+   * @param data Datos a actualizar
+   * @returns Promise<Usuario> Usuario actualizado
+   */
   async actualizarPerfil(usuarioId: number, data: { nombre: string; avatar: string }): Promise<Usuario> {
     try {
-      const response = await usuarioAPI.put<ApiResponse<Usuario>>(`/usuarios/${usuarioId}/perfil`, data);
+      const response = await httpClient.put<ApiResponse<Usuario>>(`/usuarios/${usuarioId}/perfil`, data);
       const updatedUser = handleApiResponse(response);
       localStorage.setItem('user_data', JSON.stringify(updatedUser));
       return updatedUser;
@@ -79,24 +53,38 @@ export const usuarioService = {
     }
   },
 
+  /**
+   * ✅ Verificar si el usuario puede usar la aplicación
+   * @param usuarioId ID del usuario
+   * @returns Promise<boolean> Estado de uso permitido
+   */
   async puedeUsar(usuarioId: number): Promise<boolean> {
     try {
-      const response = await usuarioAPI.get<ApiResponse<boolean>>(`/usuarios/${usuarioId}/puede-usar`);
+      const response = await httpClient.get<ApiResponse<boolean>>(`/usuarios/${usuarioId}/puede-usar`);
       return handleApiResponse(response);
     } catch (error) {
       return handleApiError(error);
     }
   },
 
+  /**
+   * 🔍 Obtener usuario por ID
+   * @param id ID del usuario
+   * @returns Promise<Usuario> Usuario encontrado
+   */
   async obtenerPorId(id: number): Promise<Usuario> {
     try {
-      const response = await usuarioAPI.get<ApiResponse<Usuario>>(`/usuarios/${id}`);
+      const response = await httpClient.get<ApiResponse<Usuario>>(`/usuarios/${id}`);
       return handleApiResponse(response);
     } catch (error) {
       return handleApiError(error);
     }
   },
 
+  /**
+   * 💾 Obtener usuario guardado en localStorage
+   * @returns Usuario | null Usuario local o null si no existe
+   */
   obtenerUsuarioLocal(): Usuario | null {
     const user = localStorage.getItem('user_data');
 
@@ -110,6 +98,10 @@ export const usuarioService = {
     }
   },
 
+  /**
+   * 🔒 Verificar si el usuario está autenticado localmente
+   * @returns boolean Estado de autenticación
+   */
   estaAutenticado(): boolean {
     const user = localStorage.getItem('user_data');
 
@@ -123,6 +115,9 @@ export const usuarioService = {
     }
   },
 
+  /**
+   * 🧹 Limpiar sesión local
+   */
   limpiarSesion() {
     localStorage.removeItem('user_data');
   },
