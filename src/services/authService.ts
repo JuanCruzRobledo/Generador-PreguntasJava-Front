@@ -244,7 +244,30 @@ export const authService = {
         resetPassword: '/auth/reset-password',
       },
     };
+  },
+
+  /**
+   * 🎭 Crea un usuario anónimo y devuelve sus datos
+   */
+  async crearUsuarioAnonimo(): Promise<AuthUser> {
+    try {
+      const response = await httpClient.post<ApiResponse<AuthUser>>('/auth/invitado');
+      const user = handleApiResponse(response);
+
+      // 💾 Guardar en localStorage
+      localStorage.setItem('user_data', JSON.stringify(user));
+
+      // 🎯 Notificar al AuthContext
+      window.dispatchEvent(new CustomEvent('auth:loginSuccess', { 
+        detail: user 
+      }));
+
+      return user;
+    } catch (error) {
+      return handleApiError(error);
+    }
   }
+
 };
 
 export default authService;

@@ -1,104 +1,112 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { Play, History, BarChart3, Coffee, User, LogOut, ChevronDown } from 'lucide-react';
-import { ThemeToggle } from './ui/ThemeToggle';
-import { useAuth } from '../contexts/AuthContext';
-import { usuarioService } from '../services/usuarioService';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react'
+import { NavLink, useNavigate } from 'react-router-dom'
+import {
+  Play,
+  History,
+  BarChart3,
+  Coffee,
+  User,
+  LogOut,
+  ChevronDown,
+} from 'lucide-react'
+import { ThemeToggle } from './ui/ThemeToggle'
+import { useAuth } from '../contexts/AuthContext'
+import { usuarioService } from '../services/usuarioService'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface NavigationProps {
-  backendStatus: 'checking' | 'online' | 'offline';
+  backendStatus: 'checking' | 'online' | 'offline'
 }
 
 export const Navigation: React.FC<NavigationProps> = ({ backendStatus }) => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+  const [showUserMenu, setShowUserMenu] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   // Cerrar menú cuando se hace clic fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setShowUserMenu(false);
+        setShowUserMenu(false)
       }
-    };
+    }
 
     if (showUserMenu) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside)
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showUserMenu]);
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showUserMenu])
 
   const tabs = [
     {
       to: '/generator',
       name: 'Generar',
       icon: Play,
-      description: 'Crear nueva pregunta'
+      description: 'Crear nueva pregunta',
     },
     {
       to: '/historial',
       name: 'Historial',
       icon: History,
-      description: 'Ver preguntas anteriores'
+      description: 'Ver preguntas anteriores',
     },
     {
       to: '/stats',
       name: 'Estadísticas',
       icon: BarChart3,
-      description: 'Estadísticas y temáticas'
-    }
-  ];
+      description: 'Estadísticas y temáticas',
+    },
+  ]
 
   const handleLogout = async () => {
-    setIsLoggingOut(true);
+    setIsLoggingOut(true)
     try {
-      await usuarioService.cerrarSesion();
-      await logout();
-      navigate('/');
+      await usuarioService.cerrarSesion()
+      await logout()
+      navigate('/')
     } catch (error) {
-      console.error('Error al cerrar sesión:', error);
+      console.error('Error al cerrar sesión:', error)
     } finally {
-      setIsLoggingOut(false);
-      setShowUserMenu(false);
+      setIsLoggingOut(false)
+      setShowUserMenu(false)
     }
-  };
+  }
 
   const handleProfileClick = () => {
-    setShowUserMenu(false);
-    navigate('/mi-perfil');
-  };
+    setShowUserMenu(false)
+    navigate('/mi-perfil')
+  }
 
   const getBackendStatusColor = () => {
     switch (backendStatus) {
       case 'online':
-        return 'bg-green-500';
+        return 'bg-green-500'
       case 'offline':
-        return 'bg-red-500';
+        return 'bg-red-500'
       case 'checking':
-        return 'bg-yellow-500';
+        return 'bg-yellow-500'
       default:
-        return 'bg-gray-500';
+        return 'bg-gray-500'
     }
-  };
+  }
 
   const getBackendStatusText = () => {
     switch (backendStatus) {
       case 'online':
-        return 'Backend conectado';
+        return 'Backend conectado'
       case 'offline':
-        return 'Backend desconectado';
+        return 'Backend desconectado'
       case 'checking':
-        return 'Verificando conexión';
+        return 'Verificando conexión'
       default:
-        return 'Estado desconocido';
+        return 'Estado desconocido'
     }
-  };
+  }
 
   return (
     <nav className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
@@ -108,24 +116,25 @@ export const Navigation: React.FC<NavigationProps> = ({ backendStatus }) => {
           <div className="flex items-center">
             <Coffee className="w-8 h-8 text-blue-600 dark:text-blue-400 mr-3" />
             <span className="text-xl font-bold text-gray-900 dark:text-white">
-              Java Quiz Generator
+              Generator de preguntas
             </span>
           </div>
 
           {/* Navegación */}
           <div className="flex space-x-1">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              
+            {tabs.map(tab => {
+              const Icon = tab.icon
+
               return (
                 <NavLink
                   key={tab.to}
                   to={tab.to}
                   className={({ isActive }) => `
                     flex items-center px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200
-                    ${isActive 
-                      ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border-2 border-blue-200 dark:border-blue-700' 
-                      : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
+                    ${
+                      isActive
+                        ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border-2 border-blue-200 dark:border-blue-700'
+                        : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
                     }
                   `}
                   title={tab.description}
@@ -133,7 +142,7 @@ export const Navigation: React.FC<NavigationProps> = ({ backendStatus }) => {
                   <Icon className="w-4 h-4 mr-2" />
                   {tab.name}
                 </NavLink>
-              );
+              )
             })}
           </div>
 
@@ -141,7 +150,7 @@ export const Navigation: React.FC<NavigationProps> = ({ backendStatus }) => {
           <div className="flex items-center space-x-4">
             {/* Theme Toggle */}
             <ThemeToggle size="sm" />
-            
+
             {/* Menú de usuario */}
             {user && (
               <div className="relative" ref={menuRef}>
@@ -164,9 +173,11 @@ export const Navigation: React.FC<NavigationProps> = ({ backendStatus }) => {
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300 hidden sm:block">
                     {user.nombreParaMostrar || user.nombre}
                   </span>
-                  <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
-                    showUserMenu ? 'rotate-180' : ''
-                  }`} />
+                  <ChevronDown
+                    className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
+                      showUserMenu ? 'rotate-180' : ''
+                    }`}
+                  />
                 </button>
 
                 {/* Dropdown Menu */}
@@ -214,17 +225,21 @@ export const Navigation: React.FC<NavigationProps> = ({ backendStatus }) => {
                 </AnimatePresence>
               </div>
             )}
-            
+
             {/* Indicador de backend */}
             <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${getBackendStatusColor()}`}></div>
-              <span className="text-xs text-gray-500 dark:text-gray-400">{getBackendStatusText()}</span>
+              <div
+                className={`w-2 h-2 rounded-full ${getBackendStatusColor()}`}
+              ></div>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {getBackendStatusText()}
+              </span>
             </div>
           </div>
         </div>
       </div>
     </nav>
-  );
-};
+  )
+}
 
-export default Navigation;
+export default Navigation

@@ -7,21 +7,6 @@ import type { ApiResponse } from '../types/api';
 export const usuarioService = {
   
   /**
-   * 🎭 Crear un usuario anónimo
-   * @returns Promise<Usuario> Usuario anónimo creado
-   */
-  async crearUsuarioAnonimo(): Promise<Usuario> {
-    try {
-      const response = await httpClient.post<ApiResponse<Usuario>>('/usuarios/anonimo');
-      const user = handleApiResponse(response);
-      localStorage.setItem('user_data', JSON.stringify(user));
-      return user;
-    } catch (error) {
-      return handleApiError(error);
-    }
-  },
-
-  /**
    * 👤 Obtener perfil del usuario autenticado
    * @returns Promise<Usuario> Perfil del usuario
    */

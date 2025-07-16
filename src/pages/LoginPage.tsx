@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { usuarioService } from '../services/usuarioService'
 import authService from '../services/authService'
 import { LoginForm } from '../components/auth/LoginForm'
 import { Button } from '../components/ui/Button'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner'
 
 const LoginPage = () => {
+  const { loginAsGuest } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const { isAuthenticated, isLoading: authLoading } = useAuth()
@@ -23,13 +23,6 @@ const LoginPage = () => {
     }
   }, [isAuthenticated, navigate])
 
-  // También verificar el método anterior por compatibilidad
-  useEffect(() => {
-    if (usuarioService.estaAutenticado()) {
-      navigate('/')
-    }
-  }, [navigate])
-
   // Manejar errores de OAuth2 desde el estado de navegación
   useEffect(() => {
     if (location.state?.error) {
@@ -43,11 +36,13 @@ const LoginPage = () => {
     try {
       setIsGuestLoading(true)
       setGuestError(null)
-      await usuarioService.crearUsuarioAnonimo()
-      navigate('/') // Redirigir al dashboard
+      loginAsGuest()
+      navigate('/')
     } catch (error) {
       console.error('Error al iniciar como invitado:', error)
-      setGuestError('No se pudo iniciar sesión como invitado. Intenta de nuevo.')
+      setGuestError(
+        'No se pudo iniciar sesión como invitado. Intenta de nuevo.'
+      )
     } finally {
       setIsGuestLoading(false)
     }
@@ -70,10 +65,7 @@ const LoginPage = () => {
   // Si se debe mostrar el formulario de login completo
   if (showLoginForm) {
     return (
-      <LoginForm 
-        onBack={() => setShowLoginForm(false)}
-        showBackButton={true}
-      />
+      <LoginForm onBack={() => setShowLoginForm(false)} showBackButton={true} />
     )
   }
 
@@ -84,12 +76,22 @@ const LoginPage = () => {
         {/* 🏢 Header */}
         <div className="text-center">
           <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
-            <svg className="h-8 w-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            <svg
+              className="h-8 w-8 text-blue-600 dark:text-blue-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+              />
             </svg>
           </div>
           <h1 className="mt-6 text-3xl font-extrabold text-gray-900 dark:text-white">
-            Generador de Preguntas Java
+            Generador de Preguntas
           </h1>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Practica programación con preguntas personalizadas
@@ -101,8 +103,18 @@ const LoginPage = () => {
           <div className="rounded-md bg-red-50 dark:bg-red-900 p-4">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="h-5 w-5 text-red-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
               <div className="ml-3">
@@ -115,8 +127,18 @@ const LoginPage = () => {
                   onClick={() => setGuestError(null)}
                   className="inline-flex rounded-md bg-red-50 dark:bg-red-900 p-1.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-800"
                 >
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
@@ -129,8 +151,18 @@ const LoginPage = () => {
           <div className="rounded-md bg-red-50 dark:bg-red-900 p-4">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="h-5 w-5 text-red-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
               <div className="ml-3">
@@ -143,8 +175,18 @@ const LoginPage = () => {
                   onClick={() => setOauthError(null)}
                   className="inline-flex rounded-md bg-red-50 dark:bg-red-900 p-1.5 text-red-500 hover:bg-red-100 dark:hover:bg-red-800"
                 >
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
@@ -159,8 +201,18 @@ const LoginPage = () => {
             onClick={() => setShowLoginForm(true)}
             className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
           >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
             </svg>
             Iniciar Sesión con Cuenta
           </Button>
@@ -170,11 +222,15 @@ const LoginPage = () => {
             onClick={() => authService.initiateGoogleOAuth()}
             className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
           >
-            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
             </svg>
             Iniciar Sesión con Google
           </Button>
@@ -185,7 +241,9 @@ const LoginPage = () => {
               <div className="w-full border-t border-gray-300 dark:border-gray-600" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400">O</span>
+              <span className="px-2 bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400">
+                O
+              </span>
             </div>
           </div>
 
@@ -198,8 +256,18 @@ const LoginPage = () => {
             {isGuestLoading ? (
               <LoadingSpinner size="sm" className="mr-2" />
             ) : (
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                />
               </svg>
             )}
             {isGuestLoading ? 'Iniciando...' : 'Continuar como Invitado'}
@@ -208,7 +276,7 @@ const LoginPage = () => {
 
         {/* 🔗 Enlaces adicionales */}
         <div className="text-center space-y-2">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          {/*<p className="text-sm text-gray-600 dark:text-gray-400">
             ¿No tienes cuenta?{' '}
             <button
               onClick={() => setShowLoginForm(true)}
@@ -217,6 +285,7 @@ const LoginPage = () => {
               Regístrate aquí
             </button>
           </p>
+          */}
           <p className="text-xs text-gray-500 dark:text-gray-400">
             Al usar esta aplicación, aceptas nuestros términos de servicio
           </p>
