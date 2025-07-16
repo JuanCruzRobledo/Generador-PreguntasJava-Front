@@ -3,7 +3,7 @@ import type { ApiResponse } from '../types/api';
 
 // 🌐 Configuración centralizada de variables de entorno
 const CONFIG = {
-  API_BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1',
+  API_BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:8080/v1',
   API_TIMEOUT: Number(import.meta.env.VITE_API_TIMEOUT) || 10000,
   DEV_MODE: import.meta.env.VITE_DEV_MODE === 'true',
   REQUEST_TIMEOUT: Number(import.meta.env.VITE_REQUEST_TIMEOUT) || 30000,
@@ -77,9 +77,13 @@ httpClient.interceptors.response.use(
     const originalRequest = error.config;
     
     // 🔒 Si recibimos un 401 (Unauthorized), intentar refresh token
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url.includes('/auth/me') // ⛔ Evitar refresh si estamos verificando autenticación
+    ) {
       if (isRefreshing) {
-        // 🔄 Si ya se está refreshing, agregar a la cola
+        // 🔄 Ya se está haciendo refresh: agregar a la cola
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
@@ -95,22 +99,17 @@ httpClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // 🔄 Intentar renovar el token usando el endpoint de refresh
         const refreshResponse = await httpClient.post('/auth/refresh');
-        
+
         if (refreshResponse.data.exitoso) {
-          // ✅ Refresh exitoso, procesar cola de peticiones
           processQueue(null, 'refreshed');
           return httpClient(originalRequest);
         } else {
-          // ❌ Refresh falló
           processQueue(error, null);
-          // Disparar evento personalizado para que el frontend maneje el logout
           window.dispatchEvent(new CustomEvent('auth:tokenExpired'));
           return Promise.reject(error);
         }
       } catch (refreshError) {
-        // ❌ Error en el refresh
         processQueue(refreshError, null);
         window.dispatchEvent(new CustomEvent('auth:tokenExpired'));
         return Promise.reject(refreshError);

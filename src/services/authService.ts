@@ -125,8 +125,48 @@ export const authService = {
    */
   async verifyAuth(): Promise<AuthUser | null> {
     try {
-      const response = await httpClient.get<ApiResponse<AuthUser>>('/auth/verify');
-      return handleApiResponse(response);
+      const response = await httpClient.get<ApiResponse<AuthUser>>('/auth/me', {
+        validateStatus: (status) => status < 500,
+        withCredentials: true,
+      });
+
+      if (response.status === 200 && response.data.exitoso) {
+        return response.data.datos;
+      }
+
+      // No autenticado o error esperado
+      return null;
+    } catch (error) {
+      console.error('[authService.verifyAuth] Error inesperado:', error);
+      return null;
+    }
+  },
+
+  /**
+   * 🔐 Inicia el flujo OAuth2 con Google
+   * Redirige al usuario a la página de autorización de Google
+   */
+  initiateGoogleOAuth(): void {
+    const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/v1$/, ''); 
+    window.location.href = `${baseUrl}/oauth2/authorization/google`;
+  },
+  /**
+   * 🔄 Verifica el estado de autenticación después de OAuth2
+   * Se llama cuando el usuario regresa desde el flujo OAuth2
+   */
+  async checkOAuth2Status(): Promise<AuthUser | null> {
+    try {
+      const response = await httpClient.get<ApiResponse<AuthUser>>('/auth/me');
+      const user = handleApiResponse(response);
+      
+      if (user) {
+        // 🎯 Disparar evento personalizado para notificar al AuthContext
+        window.dispatchEvent(new CustomEvent('auth:oauth2Success', { 
+          detail: user 
+        }));
+      }
+      
+      return user;
     } catch (error) {
       // 🔥 Si falla la verificación, el usuario no está autenticado
       return null;

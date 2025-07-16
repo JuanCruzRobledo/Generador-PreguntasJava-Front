@@ -118,9 +118,3 @@ export type ApiResponsePregunta = ApiResponse<Pregunta>;
 export type ApiResponseValidacion = ApiResponse<ValidacionResponse>;
 export type ApiResponseHistorial = ApiResponse<PreguntaRespondida[]>;
 
-// TODO: revisar implementación - export temporal para evitar errores
-export interface Tematica {
-  id: number;
-  nombre: string;
-  descripcion?: string;
-}

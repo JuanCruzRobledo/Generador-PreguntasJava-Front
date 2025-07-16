@@ -2,7 +2,6 @@ import httpClient, { handleApiResponse, handleApiError } from './httpClient';
 import type {
   ApiResponse,
   Pregunta,
-  Tematica,
   GenerarPreguntaRequest,
   ValidarRespuestaRequest,
   ValidacionResponse
@@ -61,19 +60,6 @@ export const apiService = {
     try {
       const encodedNombre = encodeURIComponent(nombreTematica);
       const response = await httpClient.get<ApiResponse<Pregunta[]>>(`/preguntas/por-tematica/${encodedNombre}`);
-      return handleApiResponse(response);
-    } catch (error) {
-      return handleApiError(error);
-    }
-  },
-
-  /**
-   * 🎯 Obtener todas las temáticas
-   * @returns Promise<Tematica[]> Lista de todas las temáticas
-   */
-  async obtenerTodasLasTematicas(): Promise<Tematica[]> {
-    try {
-      const response = await httpClient.get<ApiResponse<Tematica[]>>('/tematicas');
       return handleApiResponse(response);
     } catch (error) {
       return handleApiError(error);

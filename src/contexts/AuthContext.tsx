@@ -155,11 +155,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setError('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.');
     };
     
+    // 🎯 Listener para OAuth2 exitoso
+    const handleOAuth2Success = (event: CustomEvent) => {
+      const userData = event.detail as AuthUser;
+      setUser(userData);
+      setError(null);
+      setIsLoading(false);
+    };
+    
     // 🔧 Registrar event listeners
     window.addEventListener('auth:loginSuccess', handleLoginSuccess as EventListener);
     window.addEventListener('auth:registerSuccess', handleRegisterSuccess as EventListener);
     window.addEventListener('auth:logoutSuccess', handleLogoutSuccess);
     window.addEventListener('auth:tokenExpired', handleTokenExpired);
+    window.addEventListener('auth:oauth2Success', handleOAuth2Success as EventListener);
     
     // 🧹 Cleanup
     return () => {
@@ -167,6 +176,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       window.removeEventListener('auth:registerSuccess', handleRegisterSuccess as EventListener);
       window.removeEventListener('auth:logoutSuccess', handleLogoutSuccess);
       window.removeEventListener('auth:tokenExpired', handleTokenExpired);
+      window.removeEventListener('auth:oauth2Success', handleOAuth2Success as EventListener);
     };
   }, []);
   

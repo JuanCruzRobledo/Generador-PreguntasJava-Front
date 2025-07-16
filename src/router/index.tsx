@@ -8,11 +8,21 @@ import PerfilPage from '../pages/PerfilPage'
 import PerfilUsuarioPage from '../pages/PerfilUsuarioPage'
 import ProtectedRoute from '../routes/ProtectedRoute'
 import LoginPage from '../pages/LoginPage'
+import OAuth2CallbackPage from '../pages/OAuth2CallbackPage'
+import OAuth2ErrorPage from '../pages/OAuth2ErrorPage'
 
 export const router = createBrowserRouter([
   {
     path: '/login',
     element: <LoginPage />,
+  },
+  {
+    path: '/oauth2/success',
+    element: <OAuth2CallbackPage />,
+  },
+  {
+    path: '/oauth2/error',
+    element: <OAuth2ErrorPage />,
   },
   {
     path: '/',
