@@ -8,6 +8,7 @@ export interface Usuario {
   fechaRegistro?: string;
   ultimoAcceso?: string;
   activo?: boolean;
+  nombreParaMostrar?: string;
 }
 
 // Estado de autenticación

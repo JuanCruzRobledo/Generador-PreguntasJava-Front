@@ -47,12 +47,13 @@ export const useHistorial = () => {
   }
 }, []);
 
-  // Cargar todas las temáticas
+  // Cargar todas las temáticas (temporalmente deshabilitado)
   const cargarTematicas = useCallback(async () => {
     try {
-      const tematicas = await apiService.obtenerTodasLasTematicas();
+      // TODO: Implementar usando categoriasService cuando esté disponible
+      // const tematicas = await categoriasService.obtenerTodasLasCategorias();
       
-      return tematicas;
+      return [];
     } catch (error) {
       console.error('Error al cargar temáticas:', error);
       // No mostramos error para temáticas ya que es información auxiliar

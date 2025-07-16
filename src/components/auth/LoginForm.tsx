@@ -99,7 +99,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
         {/* 🚨 Mostrar errores */}
         {displayError && (
           <ErrorAlert
-            message={displayError}
+            error={displayError}
             onClose={() => {
               clearError();
               setLocalError(null);

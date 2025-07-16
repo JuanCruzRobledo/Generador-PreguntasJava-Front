@@ -34,10 +34,10 @@ export const probarFlujoCompleto = async () => {
       throw new Error('Backend no disponible')
     }
     
-    // 2. Obtener temáticas disponibles
-    console.log('📋 Obteniendo temáticas...')
-    const tematicas = await apiService.obtenerTodasLasTematicas()
-    console.log(`✅ ${tematicas.length} temáticas encontradas:`, tematicas.map(t => t.nombre))
+    // 2. Obtener temáticas disponibles (temporalmente deshabilitado)
+    console.log('📋 Obteniendo temáticas... (deshabilitado temporalmente)')
+    const tematicas: any[] = []
+    console.log(`✅ ${tematicas.length} temáticas encontradas:`, tematicas.map((t: any) => t.nombre))
     
     // 3. Generar una pregunta de prueba
     console.log('🎯 Generando pregunta de prueba...')

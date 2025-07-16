@@ -121,4 +121,33 @@ export const usuarioService = {
   limpiarSesion() {
     localStorage.removeItem('user_data');
   },
+
+  /**
+   * 🚪 Cerrar sesión completa (backend + frontend)
+   * @returns Promise<void>
+   */
+  async cerrarSesion(): Promise<void> {
+    try {
+      // Llamar al endpoint de logout del backend
+      await httpClient.post('/auth/logout');
+    } catch (error) {
+      // Aunque falle el logout del backend, continuamos con la limpieza local
+      console.error('Error al cerrar sesión en el backend:', error);
+    } finally {
+      // Limpiar datos locales
+      this.limpiarSesion();
+      
+      // Limpiar token de auth si existe
+      localStorage.removeItem('auth_token');
+      
+      // Limpiar cualquier cookie manualmente si es necesario
+      document.cookie.split(';').forEach(cookie => {
+        const eqPos = cookie.indexOf('=');
+        const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+        if (name.includes('token') || name.includes('auth')) {
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+        }
+      });
+    }
+  },
 };

@@ -23,6 +23,8 @@ export interface AuthUser {
   avatar?: string;
   fechaRegistro: string;
   ultimoAcceso?: string;
+  activo?: boolean;
+  nombreParaMostrar?: string;
 }
 
 export interface AuthResponse {
@@ -125,19 +127,24 @@ export const authService = {
    */
   async verifyAuth(): Promise<AuthUser | null> {
     try {
-      const response = await httpClient.get<ApiResponse<AuthUser>>('/auth/me', {
-        validateStatus: (status) => status < 500,
-        withCredentials: true,
-      });
-
-      if (response.status === 200 && response.data.exitoso) {
-        return response.data.datos;
+      const localUser = localStorage.getItem('user_data');
+      if (localUser) {
+        return JSON.parse(localUser);
       }
 
-      // No autenticado o error esperado
+      // fallback por si no está en localStorage
+      const response = await httpClient.get<ApiResponse<AuthUser>>('/auth/me');
+      console.log('🚨 verifyAuth raw response:', response);
+      const user = handleApiResponse(response);
+
+      if (user) {
+        localStorage.setItem('user_data', JSON.stringify(user));
+        return user;
+      }
+
       return null;
     } catch (error) {
-      console.error('[authService.verifyAuth] Error inesperado:', error);
+      console.error('verifyAuth error:', error);
       return null;
     }
   },
@@ -157,17 +164,21 @@ export const authService = {
   async checkOAuth2Status(): Promise<AuthUser | null> {
     try {
       const response = await httpClient.get<ApiResponse<AuthUser>>('/auth/me');
+      console.log('🚨 checkOAuth2Status raw response:', response);
       const user = handleApiResponse(response);
-      
+
       if (user) {
+        // 💾 Guardar en localStorage para que el front detecte autenticación
+        localStorage.setItem('user_data', JSON.stringify(user));
+
         // 🎯 Disparar evento personalizado para notificar al AuthContext
         window.dispatchEvent(new CustomEvent('auth:oauth2Success', { 
           detail: user 
         }));
       }
-      
       return user;
     } catch (error) {
+      console.error('checkOAuth2Status error:', error);
       // 🔥 Si falla la verificación, el usuario no está autenticado
       return null;
     }
